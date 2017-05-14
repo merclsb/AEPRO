@@ -20,12 +20,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'z5dq1lwd)8xwy=vz6f=9=ssi&)q53-6187fr5^^h$28+(hi_n9'
+SECRET_KEY = 'tb4f*5(ox3ec28euq#m05f0@=bvm0%2&&7%+ji7xue#nel&vc='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+#Desbloquear el captcha
+#https://accounts.google.com/DisplayUnlockCaptcha
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = '@gmail.com'
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 25
+EMAIL_USE_TLS = True
+
 
 
 # Application definition
@@ -37,9 +47,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #otros
+    'django.contrib.admindocs',
+    #APPs
+    'aepro',
+    #3th-party app
 ]
 
-MIDDLEWARE = [
+#MIDDLEWARE = [
+MIDDLEWARE_CLASSES= [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,7 +70,10 @@ ROOT_URLCONF = 'website.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates/'), #BASE_DIR = src/
+            os.path.join(BASE_DIR, 'aepro/templates/')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -103,9 +122,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Madrid'
 
 USE_I18N = True
 
@@ -117,4 +136,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_URL = '/static/'
+#desde donde se sirven los archivos estaticos
+STATIC_URL = '/static/'#/static/img/imag3.jpg
+
+#donde viviran los archivos estaticos en desarrollo
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),#src/static/
+    #os.path.join(BASE_DIR, "static_pro","static"),#src/static_pro/static
+]
+#collestatic-> donde viviran los archivos estaticos en produccion
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR, ...)) # confupro/src
+
+# Media files
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
