@@ -19,7 +19,7 @@ def inicio(request):
         "titulo":titulo,
         "saludo":saludo,
     }
-    return render(request, 'inicio_aepro.html',contexto)
+    return render(request, 'index.html',contexto)
 
 def contacto(request):
     formulario = FormularioContacto(request.POST or None)

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static from staticfiles %}
+{% block head_title %}{{block.super}} | {{titulo}}{% endblock %}
+
+{% block encabezado %}
+	<h1>{{titulo}}</h1>
+	<h3>Usuario: {{ request.user }}</h3>
+{% endblock %}
+
+{% block contenido %}
+
+{% if request.user.is_authenticated %}
+	<div class='row'>
+		<div class='col-sm-4'>
+			
+				<p>Bievenido {{user.username|upper}},
+				la última vez que te vimos por aquí fue el {{user.last_login}}.</p>
+				<p>Eres miembro desde el {{user.date_joined}}</p>
+
+		</div>
+		<div class='col-sm-6 col-sm-offset-3'>
+			<img src='{% static "img/analisis_vectorial.png" %}' height="420" width="600"/>
+		</div>
+	</div>
+{% endif %}
+
+
+	<div class='row'>
+		
+{% if not user.is_authenticated %}
+		<div class='col-sm-4'>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eveniet, vel perferendis. Aperiam quam impedit voluptatum vero recusandae ut iste eos, doloribus, omnis sit delectus odio rerum nobis optio ipsa?
+			</p>
+		</div>
+		<div class='col-sm-4' style='background-color:grey'>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eveniet, vel perferendis. Aperiam quam impedit voluptatum vero recusandae ut iste eos, doloribus, omnis sit delectus odio rerum nobis optio ipsa?
+			</p>
+			<i class="fa fa-plus" aria-hidden="true"></i>
+		</div>
+
+		<div class='row'>
+		<div class='col-sm-6 pull-right'>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eveniet, vel perferendis. Aperiam quam impedit voluptatum vero recusandae ut iste eos, doloribus, omnis sit delectus odio rerum nobis optio ipsa?
+			<i class="fa fa-plus" aria-hidden="true"></i>
+			</p>
+			
+		</div>
+		<div class='col-sm-6 pull-right'>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eveniet, vel perferendis. Aperiam quam impedit voluptatum vero recusandae ut iste eos, doloribus, omnis sit delectus odio rerum nobis optio ipsa?
+			<i class="fa fa-plus" aria-hidden="true"></i>
+			</p>
+			
+		</div>
+{% endif %}
+	</div>
+
+
+	
+
+{% endblock %}
