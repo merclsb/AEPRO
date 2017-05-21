@@ -34,11 +34,11 @@
 
           {% if request.user.is_authenticated %}
 
-                <li><a href="#">Salir</a></li>
+                <li><a href="{%url 'usuario_logout' %}">Salir</a></li>
             
             {% else %}
 
-                <li><a href="#">Registrate</a></li>
+                <li><a href="{%url 'usuario_nuevo' %}">Registrate</a></li>
             
           {% endif %}
 
@@ -47,7 +47,7 @@
 
         {% if not request.user.is_authenticated and not "/accounts/login" in request.get_full_path%}
 
-          <form class="navbar-form navbar-right" method='POST' action=''>{% csrf_token %}
+          <form class="navbar-form navbar-right" method='POST' action="{% url 'usuario_login' %}">{% csrf_token %}
             <div class="form-group">
               <input type="text" placeholder="Usuario" class="form-control" name='username'>
             </div>
