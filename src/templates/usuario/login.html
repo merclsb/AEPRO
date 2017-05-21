@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block titulo %}Login{% endblock %}
+
+{% block encabezado %}
+	<h1>Acceder</h1>
+{% endblock %}
+
+{% block contenido %}
+
+	<form id='formulario' method='post' action=''>{% csrf_token %}
+		{{formulario|crispy}}
+		<input class='btn btn-primary'type="submit" value='Ingresar'/></p>
+	</form>
+
+{% endblock %}
