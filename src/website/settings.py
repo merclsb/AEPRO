@@ -51,8 +51,8 @@ INSTALLED_APPS = [
     'django.contrib.admindocs',
     #APPs
     'aepro',
-    'crispy_forms',
     #3th-party app
+    'crispy_forms',
 ]
 
 #MIDDLEWARE = [
@@ -73,6 +73,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'templates/'), #BASE_DIR = src/
+            os.path.join(BASE_DIR, 'templates/usuario/'),
             os.path.join(BASE_DIR, 'aepro/templates/')
         ],
         'APP_DIRS': True,
