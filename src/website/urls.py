@@ -24,7 +24,28 @@ urlpatterns = [
     url(r'^', include('aepro.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^accounts/', include('registration.backends.default.urls')),#REGISTRATION REDUX
 ]
 if settings.DEBUG:
 	urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+#REGISTRATION REDUX
+#http://127.0.0.1:8000/accounts/register/
+
+""" 
+^accounts/ ^activate/complete/$ [name='registration_activation_complete']
+^accounts/ ^activate/(?P<activation_key>\w+)/$ [name='registration_activate']
+^accounts/ ^register/complete/$ [name='registration_complete']
+^accounts/ ^register/closed/$ [name='registration_disallowed']
+^accounts/ ^register/$ [name='registration_register']
+^accounts/ ^login/$ [name='auth_login']
+^accounts/ ^logout/$ [name='auth_logout']
+^accounts/ ^password/change/$ [name='auth_password_change']
+^accounts/ ^password/change/done/$ [name='auth_password_change_done']
+^accounts/ ^password/reset/$ [name='auth_password_reset']
+^accounts/ ^password/reset/complete/$ [name='auth_password_reset_complete']
+^accounts/ ^password/reset/done/$ [name='auth_password_reset_done']
+^accounts/ ^password/reset/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$ [name='auth_password_reset_confirm'] 
+"""

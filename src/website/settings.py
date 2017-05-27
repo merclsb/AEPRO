@@ -51,8 +51,10 @@ INSTALLED_APPS = [
     'django.contrib.admindocs',
     #APPs
     'aepro',
-    'crispy_forms',
     #3th-party app
+    'crispy_forms',
+    'registration',
+
 ]
 
 #MIDDLEWARE = [
@@ -73,6 +75,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'templates/'), #BASE_DIR = src/
+            os.path.join(BASE_DIR, 'templates/usuario/'),
             os.path.join(BASE_DIR, 'aepro/templates/')
         ],
         'APP_DIRS': True,
@@ -159,3 +162,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #Crispy
 CRISPY_TEMPALTE_PACK = 'bootstrap3'
 
+
+#Registration Redux
+ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
+REGISTRATION_AUTO_LOGIN = True # Automatically log the user in.
+SITE_ID=1
+
+#Redirect despues de login
+LOGIN_REDIRECT_URL = '/'
