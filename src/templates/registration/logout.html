@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block contenido %}
+<br>
+<p class='lead'>{% trans "Sesión terminada." %}</p>
+
+<a href='{% url "auth_login"%}'>Login</a></li>
+{% endblock %}

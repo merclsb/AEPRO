@@ -1,0 +1,18 @@
+<script type="text/javascript" src="/admin/jsi18n/"></script>
+<script type="text/javascript" src="{%STATIC_ROOT%}/admin/js/core.js"></script>
+<script type="text/javascript"
+src="{%STATIC_ROOT%}/admin/js/admin/RelatedObjectLookups.js"></script>
+{{ form.media }}
+<form name="form" action="." method="post" enctype="multipart/form-data">
+<link href="{%STATIC_ROOT%}/admin/css/widgets.css" rel="stylesheet" type="text/css">
+<link href="{%STATIC_ROOT%}/admin/css/forms.css" rel="stylesheet" type="text/css">
+<link href="{%STATIC_ROOT%}/admin/css/estilo_general.css" rel="stylesheet" type="text/css">
+<table>
+<br><br>
+{{ html|safe }}
+{{ form }}
+<br><br>
+</table>
+<br><br>
+<input type="submit" value="Cargar" />
+</form>
