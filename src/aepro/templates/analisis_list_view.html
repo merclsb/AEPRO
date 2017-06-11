@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+
+{% block encabezado %}
+	<h1>{{titulo}}</h1>
+{% endblock %}
+
+{% block contenido %}
+
+{% if error_message %}
+	<p><strong>{{ error_message}}</strong></p>
+{% endif %}
+<div class="table-responsive">
+{% if object_list %}
+<table class="table table-striped">
+	<thead>
+		<tr>
+		{% if request.user.is_staff %}
+			<th>#</th>
+			{% endif %}
+			<th>Titulo</th>
+			<th>Tipo Analisis</th>
+			<th>Fecha</th>
+			<th>Estado</th>
+		</tr>
+
+	</thead>
+
+<tbody>
+		
+			{% for obj in object_list  %}
+			<tr>
+				{% if request.user.is_staff %}
+				<td>{{ obj.id_analisis}}</td>
+				{% endif %}
+				<td><a href="{{ obj.get_absolute_url }}">{{ obj.titulo_descriptivo }}</a></td>
+				<td>{{ obj.tipo_analisis }}</td>
+				<td>{{ obj.timestamp }}</td>
+				<td>
+					{% if obj.analisis_cep.analisis_id %}
+					{% if obj.analisis_cep.estado %}
+							<a class="btn btn-success" href="#">Resultados CEP</a>
+						{% else %}
+							<a class="btn btn-warning">Calculando CEP...</a>
+						{% endif %}
+					{% endif %}
+				{% if obj.analisis_fda.analisis_id %}
+					{% if obj.analisis_fda.estado %}
+							<a class="btn btn-success" href="#">Resultados FDA</a>
+						{% else %}
+							<a class="btn btn-warning">Calculando FDA...</a>
+						{% endif %}
+				{% endif %}
+				</td>
+				
+			</tr>
+			{% endfor %}
+
+		{% else %}
+			<h1>---No hay analisis creados---</h1>
+	{% endif %}
+
+	</tbody>
+</table>
+
+
+{% if is_paginated %}
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+	</ul>
+</div>
+
+
+{% endblock %}

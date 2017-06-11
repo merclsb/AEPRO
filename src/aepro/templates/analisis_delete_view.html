@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block encabezado %}
+	<h1>{{titulo}}</h1>
+	<h3>Usuario: {{ request.user }}</h3>
+{% endblock %}
+
+{% block contenido %}
+
+	<div class='row'>
+	<div class='col-sm-6 col-sm-offset-3'>
+		<!--<h1 class='text-align-center'>Contacto</h1>-->
+		<form method="POST"action="">{% csrf_token %}
+		<p>Seguro que quieres borrar "{{ object }}"?</p>
+		<input class='btn btn-danger'type="submit" value='Borrar'/>
+		<a href="{{ object.get_absolute_url}}" class="btn btn-default">Cancelar</a>
+	</form>
+	</div>
+</div>
+
+{% endblock %}

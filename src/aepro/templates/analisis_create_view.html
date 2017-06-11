@@ -1,0 +1,46 @@
+
+
+{% extends 'base.html' %}
+
+
+{% block encabezado %}
+    <h1 class='text-align-center'> {{ titulo_form }}</h1>
+{% endblock %}
+{# Display a form #}
+{% block contenido %}
+
+
+
+        {# Load the tag library #}
+        {{ form.media }}
+
+        {% load bootstrap3 %}
+        {# Load CSS and JavaScript #}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+
+        {# Display django.contrib.messages as Bootstrap alerts #}
+        {% bootstrap_messages %}
+
+
+        <div class="form-group">
+          <div class="col-sm-6 col-sm-offset-3">
+            <form action="" method="post" class="form form-horizontal" enctype="multipart/form-data">
+              {% csrf_token %}
+              {% bootstrap_form form layout='horizontal'%}
+              {% buttons layout="horizontal" %}
+                <button type="submit" class="btn btn-primary">
+                  {% bootstrap_icon "floppy-disk" %} Calcular
+                </button>
+                <button type="reset" class="btn btn-primary">
+                  {% bootstrap_icon "remove" %} Reset
+                </button>
+                {# buttons submit='OK' reset="Cancel" %}{% endbuttons #}
+              {% endbuttons %}
+            </form>
+          </div>
+        </div>
+
+{% endblock %}
+
+

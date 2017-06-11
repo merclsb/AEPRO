@@ -54,7 +54,9 @@ INSTALLED_APPS = [
     #3th-party app
     'crispy_forms',
     'registration',
-
+    'multiselectfield',
+    'bootstrap3_datetime',
+    'bootstrap3',
 ]
 
 #MIDDLEWARE = [

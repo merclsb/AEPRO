@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static from staticfiles %}
+
+{% block encabezado %}
+	<h1>{{titulo}}</h1>
+	<h3>Usuario: {{ request.user }}</h3>
+{% endblock %}
+
+{% block contenido %}
+
+	<h2>ID:{{ object.id_analisis}}</h2> <br>
+	Titulo: {{object.titulo_descriptivo}} <br>
+	ARchivo: <a href="{{object.file.url}}" class="href">{{object.file.name}}</a><br>
+	Fecha creacion <span>{{ object.timestamp }}</span> <br>
+
+	 <ul>
+	 <div class="span2">
+        <a class="btn btn-primary"href="{% url 'analisis_updatecbv' object.id_analisis%}" class="href">Actualizar</a>
+        <a class="btn btn-danger"href="{% url 'analisis_deletecbv' object.id_analisis%}" class="href">Borrar</a>
+        </div>
+
+	</ul>
+{% endblock %}

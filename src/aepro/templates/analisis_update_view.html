@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block encabezado %}
+	<h1>{{titulo}}</h1>
+	<h3>Usuario: {{ request.user }}</h3>
+{% endblock %}
+
+{% block contenido %}
+
+	<div class='row'>
+	<!--<div class='col-sm-12 col-sm-offset-3'>-->
+		<div class='col-sm-6 col-md-4'>
+		<!--<h1 class='text-align-center'>Contacto</h1>-->
+		<form method="POST"action="">{% csrf_token %}
+		{{form|crispy}}
+		<input class='btn btn-primary'type="submit" value='Actualizar'/>
+		<a href="{{ object.get_absolute_url}}" class="btn btn-default">Cancelar</a>
+	</form>
+	</div>
+</div>
+
+{% endblock %}

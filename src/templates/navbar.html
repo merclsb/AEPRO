@@ -1,3 +1,5 @@
+
+
 <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         
@@ -20,8 +22,8 @@
             <!--<li class="active"><a href="/">Dashboard</a></li>
             <li><a href="/nuevo_analisis">Nuevo Analisis</a></li>-->
             <li class="active"><a href="#">Boton</a></li>
-            <li><a href="#">Boton</a></li>
-            <li><a href="#">Boton</a></li>
+            <li><a href="{% url 'crear_analisis'%}">Crear</a></li>
+            <li><a href="{% url 'analisis_listcbv'%}">Lista</a></li>
             <li><a href="#">Boton</a></li>
             <li><a href="#">Boton</a></li>
             <li><a href="#">Boton</a></li>
@@ -33,12 +35,13 @@
           <ul class="nav navbar-nav navbar-right">
 
           {% if request.user.is_authenticated %}
-
-                <li><a href="{%url 'auth_logout' %}">Salir</a></li>
+                
+                <li><a href="#">{{ request.user }}</a></li>
+                <li><a href="{% url 'auth_logout'%}">Salir</a></li>
             
             {% else %}
 
-                <li><a href="{%url 'registration_register' %}">Registrate</a></li>
+                <li><a href="{% url 'registration_register'%}">Registrate</a></li>
             
           {% endif %}
 
