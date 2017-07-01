@@ -1,5 +1,11 @@
-
-
+{% load static %}
+  <!--<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>-->
+<script type="text/javascript" src="{% static 'js/fontawesome.js' %}"></script>
 <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         
@@ -22,8 +28,11 @@
             <!--<li class="active"><a href="/">Dashboard</a></li>
             <li><a href="/nuevo_analisis">Nuevo Analisis</a></li>-->
             <li class="active"><a href="#">Boton</a></li>
-            <li><a href="{% url 'crear_analisis'%}">Crear</a></li>
-            <li><a href="{% url 'analisis_listcbv'%}">Lista</a></li>
+            <li><a href="{% url 'crear_analisis'%}"><span class="fa fa-plus"></span>&nbsp;Crear</a></li>
+            <li><a href="{% url 'analisis_listcbv'%}"><span class="fa fa-bar-chart"></span>&nbsp;Analisis</a></li>
+            
+           
+           
             <li><a href="#">Boton</a></li>
             <li><a href="#">Boton</a></li>
             <li><a href="#">Boton</a></li>
@@ -36,9 +45,10 @@
 
           {% if request.user.is_authenticated %}
                 
-                <li><a href="#">{{ request.user }}</a></li>
-                <li><a href="{% url 'auth_logout'%}">Salir</a></li>
-            
+                <li><a href="#"><span class="fa fa-user"></span>&nbsp;{{ request.user }}</a></li>
+                <li><a href="{% url 'auth_logout'%}"><span class="fa fa-sign-out"></span>&nbsp;Salir</a></li>
+                
+              
             {% else %}
 
                 <li><a href="{% url 'registration_register'%}">Registrate</a></li>

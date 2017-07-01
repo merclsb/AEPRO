@@ -39,14 +39,14 @@
 				<td>
 					{% if obj.analisis_cep.analisis_id %}
 					{% if obj.analisis_cep.estado %}
-							<a class="btn btn-success" href="#">Resultados CEP</a>
+							<a class="btn btn-success" href="{% url 'detalle_resultado_cep' obj.id_analisis%}">Resultados CEP</a>
 						{% else %}
 							<a class="btn btn-warning">Calculando CEP...</a>
 						{% endif %}
 					{% endif %}
 				{% if obj.analisis_fda.analisis_id %}
 					{% if obj.analisis_fda.estado %}
-							<a class="btn btn-success" href="#">Resultados FDA</a>
+							<a class="btn btn-success" href="{% url 'detalle_resultado_fda' obj.id_analisis%}">Resultados FDA</a>
 						{% else %}
 							<a class="btn btn-warning">Calculando FDA...</a>
 						{% endif %}

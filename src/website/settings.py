@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'multiselectfield',
     'bootstrap3_datetime',
     'bootstrap3',
+    #UML
+    #'django_extensions',
 ]
 
 #MIDDLEWARE = [

@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.models import User
-
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.db import transaction, IntegrityError
 
 import subprocess
@@ -26,6 +27,16 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse
 
+import os
+import json
+import plotly.offline as opy
+import plotly.graph_objs as go
+
+class LoginRequired(object):
+    @method_decorator(login_required)
+    def dispatch(self, *args,  **kwargs): #def dispatch(self, request ,*args,  **kwargs):
+        return super(LoginRequired, self).dispatch(*args, **kwargs) #.dispatch(request, *args, **kwargs)
+
 
 
 # Create your views here.
@@ -40,6 +51,7 @@ def inicio(request):
     }
     return render(request, 'index.html',contexto)
 
+@login_required(login_url='/accounts/login/')
 def analisis_model_form_crear(request):
     titulo = "Analisis ModelForm"
     formulario = AnalisisModelForm(request.POST or None, request.FILES or None)
@@ -53,7 +65,7 @@ def analisis_model_form_crear(request):
         print (request.FILES['file'].content_type)
         valores = formulario.cleaned_data.get("tipo_analisis")
         valor_cep=False
-        valor_afd=False
+        valor_fda=False
         
         
         try:
@@ -67,7 +79,7 @@ def analisis_model_form_crear(request):
                 instancia.save()
                 #print (instancia.id_analisis)
             
-                for k in valores: #['CEP','AFD']
+                for k in valores: #['CEP','FDA']
                     if k == 'CEP':
                         #Si no hay existe ningun control estadistico de procesos indicamos valor 1 id_cep=1
                         if CEP.objects.all().count()==0:
@@ -77,17 +89,17 @@ def analisis_model_form_crear(request):
                             #si ya existe algun valor, al ultimo le añadimos +1
                             print ("else",k)
                             obj_cep,valor_cep = CEP.objects.get_or_create(id_cep=CEP.objects.all().last().id_cep+1,analisis_id=instancia.id_analisis)
-                    elif k =='AFD':
+                    elif k =='FDA':
                         if FDA.objects.all().count()==0:
                             print ("if",k)
-                            obj_afd,valor_afd = FDA.objects.get_or_create(id_fda=1,analisis_id=instancia.id_analisis)
+                            obj_fda,valor_fda = FDA.objects.get_or_create(id_fda=1,analisis_id=instancia.id_analisis)
                         else:
                             print ("else",k)
-                            obj_afd,valor_afd = FDA.objects.get_or_create(id_fda=FDA.objects.all().last().id_fda+1,analisis_id=instancia.id_analisis)
+                            obj_fda,valor_fda = FDA.objects.get_or_create(id_fda=FDA.objects.all().last().id_fda+1,analisis_id=instancia.id_analisis)
 
                 
                 #TASK-->Matlab
-                #subprocess.Popen( ('python analisis/task_matlab.py {}').format(Analisis.objects.all().count()+1) ,shell=True)
+                #subprocess.Popen( ('python aepro/task_matlab.py {}').format(instancia.id_analisis),shell=True)
 
         except Exception as e: 
             print (e)
@@ -101,7 +113,7 @@ def analisis_model_form_crear(request):
     return render(request, "analisis_create_view.html", context)
 
 
-class AnalisisListView(ListView):
+class AnalisisListView(LoginRequired,ListView):
     model = Analisis
     template_name= "analisis_list_view.html"
     paginate_by = 5
@@ -124,7 +136,7 @@ class AnalisisListView(ListView):
 
 
 
-class AnalisisDetailView(DetailView):
+class AnalisisDetailView(LoginRequired,DetailView):
     model = Analisis
     template_name= "analisis_detail_view.html"#template: object
     #method flowchart: metodos que se puede usar en DetailView
@@ -138,7 +150,7 @@ class AnalisisDetailView(DetailView):
 
 #guardar como pdf
 
-class AnalisisDeleteView(DeleteView):
+class AnalisisDeleteView(LoginRequired,DeleteView):
     model = Analisis 
     template_name = 'analisis_delete_view.html'
 
@@ -153,7 +165,7 @@ class AnalisisDeleteView(DeleteView):
         return reverse('analisis_listcbv')
 
 
-class AnalisisUpdateView(UpdateView):#--> models:Analisis:get_absolute_url
+class AnalisisUpdateView(LoginRequired,UpdateView):#--> models:Analisis:get_absolute_url
     model = Analisis 
     fields = ['titulo_descriptivo','comentario']
     
@@ -168,6 +180,17 @@ class AnalisisUpdateView(UpdateView):#--> models:Analisis:get_absolute_url
         
     def get_success_url(self):
         return reverse('analisis_listcbv')
+
+@login_required(login_url='/accounts/login/')
+def detalle_resultado_fda(request, pk):
+    pass
+
+@login_required(login_url='/accounts/login/')
+def detalle_resultado_cep(request, pk):
+    pass
+
+
+
 def contacto(request):
     formulario = FormularioContacto(request.POST or None)
 
@@ -195,7 +218,7 @@ def contacto(request):
         "titulo":titulo,
         "form":formulario,
     }
-    plantilla = "contacto.html"
+    plantilla = "aepro_contacto.html"
 
     #************** return HttpResponseRedirect('/') -> mensaje enviado
     return render (request,plantilla,contexto)
