@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+
+{% block titulo %}Contacto{% endblock %}
+
+{% block encabezado %}
+	<h3 class='text-align-center'>
+    <span class="fa fa-upload"></span> Validar los datos de fichero XLS
+    <small>
+        <a href="{% url 'contacto' %}">Ayuda</a>
+    </small>
+</h3>
+{% endblock %}
+
+{% block contenido %}
+ <div class="col-xs-12 col-md-6 col-lg-8">
+    <h3>Instrucciones</h3>
+    <p>
+    	Para validar tus datos, el archivos XLS debe seguir el siguiente orden y formato:
+      <ol>
+      <li>Value</li>
+      <li>Category (if no matching category in our system,
+      'No Category' will be assigned)</li>
+      <li>Date (in m/d/yyyy format, e.g. 5/6/2014 or
+      05/06/2014)</li>
+      <li> Time (in h:m am/pm format, e.g. 8:01 AM or 08:01 PM)</li>
+      <li>Notes</li>
+      </ol>
+      Puedes descargar este archivo de ejemplo como guía:
+      <a href="{% static 'samples/csv_import_template.csv' %}">xls_import_template.xls</a>
+    </p>
+   {# crispy form #}
+  </div>
+
+
+
+
+
+
+
+  <div class="well col-xs-12 col-md-6 col-lg-8" >
+
+    <form method="POST"action="." enctype="multipart/form-data">{% csrf_token %}
+      {{form|crispy}}
+      <div class="pull-right">
+       <input  class='btn btn-primary' type="submit"  value='Validar'/>
+      </div>
+    </form>
+
+  </div>
+  </div>
+
+<div class="container">
+  <ul class="fa-ul">
+{% if estado %}
+  <h2><li><i class="fa fa-check"></i>{{estado}}</li></h2>
+{% endif %}
+</ul>
+</div>
+{# Display django.contrib.messages as Bootstrap alerts #}
+<!--
+<div class='row'>
+	<div class='col-sm-6 col-sm-offset-3'>
+		<!--<h1 class='text-align-center'>Contacto</h1>
+		<form method="POST"action="">{% csrf_token %}
+		{{ form|crispy }}
+		<input class='btn btn-primary'type="submit" value='Verificar'/>
+	</form>
+-->
+
+
+
+
+{% endblock contenido%}
+
+<script type="text/javascript">
+ 
+
+</script>

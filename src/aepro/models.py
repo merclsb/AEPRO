@@ -59,9 +59,15 @@ class ResultadoCEP(models.Model):
 	estado=models.BooleanField(default=False)
 	analisis = models.OneToOneField(Analisis ,related_name='analisis_cep',null=True, blank=True, on_delete=models.CASCADE)
 	resultados = JSONField(default={})
+	pid = JSONField(default={"pid:'',estado:'' "})
 
 	def __str__(self): #Python_3
 	 	return '%s,%s,%s' %(str(self.id_cep), str(self.estado),str(self.analisis))
+
+	def get_absolute_url(self):
+		view_name = "detalle_resultado_cep"
+		return reverse(view_name, kwargs={"pk": self.id_cep})
+ 
 
 class ResultadoFDA(models.Model):
 	id_fda = models.AutoField(primary_key=True)
@@ -69,6 +75,11 @@ class ResultadoFDA(models.Model):
 	estado=models.BooleanField(default=False)
 	analisis = models.OneToOneField(Analisis ,related_name='analisis_fda',null=True, blank=True, on_delete=models.CASCADE)
 	resultados = JSONField(default={})
+	pid = JSONField(default={"pid:'',estado:'' "})
 
 	def __str__(self): #Python_3
 	 	return '%s,%s,%s' %(str(self.id_fda), str(self.estado),str(self.analisis))
+
+	def get_absolute_url(self):
+		view_name = "detalle_resultado_fda"
+		return reverse(view_name, kwargs={"pk": self.id_fda})

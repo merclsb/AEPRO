@@ -1,0 +1,31 @@
+
+
+{% extends 'base.html' %}
+
+{% load static from staticfiles %}
+{% block encabezado %}
+	<h3>{{titulo}}</h3>
+{% endblock %}
+
+{% block contenido %}
+	
+	Titulo: {{resultado_form.titulo_descriptivo}} <br>
+	Archivo: <a href="{{resultado_form.file.url}}" class="href">{{resultado_form.file.name}}</a><br>
+	Fecha creacion <span>{{ resultado_form.timestamp }}</span> <br>
+	Comentario: <span>{{ resultado_form.comentario}}</span> <br>
+
+	<div class='row'>
+
+
+	{{ graph2|safe }}
+	</div>
+	<ul>
+	 <div class="span2">
+        <a class="btn btn-primary"href="{% url 'analisis_fda_update' resultado_form.id_analisis%}" class="href">Actualizar informacion</a>
+        <a class="btn btn-danger"href="{% url 'analisis_deletecbv' resultado_form.id_analisis%}" class="href">Borrar</a>
+        </div>
+
+	</ul>
+</div>
+
+{% endblock %}

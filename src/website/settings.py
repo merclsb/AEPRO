@@ -164,7 +164,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 #3th party APP
 #Crispy
-CRISPY_TEMPALTE_PACK = 'bootstrap3'
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 
 #Registration Redux

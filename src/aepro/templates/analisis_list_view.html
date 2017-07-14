@@ -2,7 +2,7 @@
 
 
 {% block encabezado %}
-	<h1>{{titulo}}</h1>
+	<h3> <span class="fa fa-list"></span>&nbsp;Resultados{{ titulo_form }}</h3>
 {% endblock %}
 
 {% block contenido %}
@@ -33,24 +33,86 @@
 				{% if request.user.is_staff %}
 				<td>{{ obj.id_analisis}}</td>
 				{% endif %}
-				<td><a href="{{ obj.get_absolute_url }}">{{ obj.titulo_descriptivo }}</a></td>
+				<td>
+				<!--<a href="{{ obj.get_absolute_url }}">-->
+				{{ obj.titulo_descriptivo }}
+				</a></td>
 				<td>{{ obj.tipo_analisis }}</td>
 				<td>{{ obj.timestamp }}</td>
 				<td>
-					{% if obj.analisis_cep.analisis_id %}
-					{% if obj.analisis_cep.estado %}
-							<a class="btn btn-success" href="{% url 'detalle_resultado_cep' obj.id_analisis%}">Resultados CEP</a>
-						{% else %}
-							<a class="btn btn-warning">Calculando CEP...</a>
+
+				{% if obj.analisis_cep.analisis_id %}
+					{% if request.user.is_staff %}	
+					{{obj.analisis_cep.pid.pid}}
+					{{obj.analisis_cep.pid.estado}}
+					{% endif %}
+
+					{% if obj.analisis_cep.pid.pid not in procesos_activos %} 
+						{%if obj.analisis_cep.pid.estado != 'finish'%}
+							<a class="btn btn-danger" href="{% url 'analisis_deletecbv' obj.id_analisis%}">Error CEP</a>
 						{% endif %}
 					{% endif %}
-				{% if obj.analisis_fda.analisis_id %}
-					{% if obj.analisis_fda.estado %}
-							<a class="btn btn-success" href="{% url 'detalle_resultado_fda' obj.id_analisis%}">Resultados FDA</a>
-						{% else %}
-							<a class="btn btn-warning">Calculando FDA...</a>
-						{% endif %}
+
+					{# if obj.analisis_fda.estado #}
+					{% if obj.analisis_cep.pid.estado == 'finish'%}
+								<a class="btn btn-success" href="{% url 'detalle_resultado_cep' obj.id_analisis%}">Resultados CEP</a>
+							{% elif  obj.analisis_cep.pid.estado == 'run' or obj.analisis_cep.pid.estado == 'init'%}
+								{% if obj.analisis_cep.pid.pid  in procesos_activos %}
+								<a class="btn btn-warning">Calculando CEP...</a>
+								{% endif %}
+							
+					{% endif %}
+
 				{% endif %}
+
+				{% if obj.analisis_fda.analisis_id %}
+					{% if request.user.is_staff %}	
+					{{obj.analisis_fda.pid.pid}}
+					{{obj.analisis_fda.pid.estado}}
+					{% endif %}
+					
+					
+					{% if  obj.analisis_fda.pid.pid not in procesos_activos and obj.analisis_fda.pid.estado != 'finish' %}
+					
+						{% if  obj.analisis_fda.pid.estado != 'run' %}
+							Pendiente de procesar...
+						{% endif %}
+						
+					{% endif %}
+
+					{# if obj.analisis_fda.estado #}
+					{% if obj.analisis_fda.pid.estado == 'run' and obj.analisis_fda.pid.pid in procesos_activos%}
+					
+							{# if  obj.analisis_fda.pid.pid in procesos_activos #}
+								<a class="btn btn-warning">Calculando FDA...</a>
+							{# endif #}
+						
+					{%elif obj.analisis_fda.pid.estado == 'finish'%}
+							<a class="btn btn-success" href="{% url 'detalle_resultado_fda' obj.id_analisis%}">Resultados FDA</a>
+					
+					
+					{% endif %}
+					
+
+					
+
+					{% if  obj.analisis_fda.pid.pid not in procesos_activos and obj.analisis_fda.pid.estado != 'finish' %}
+					
+						{% if  obj.analisis_fda.pid.estado == 'run' %}
+							<a class="btn btn-danger" href="{% url 'analisis_deletecbv_error' obj.id_analisis%}">Error FDA</a>
+						{% endif %}
+						
+					{% endif %}
+						
+					
+					
+
+				
+					
+
+
+				{% endif %}
+
 				</td>
 				
 			</tr>
@@ -63,6 +125,9 @@
 	</tbody>
 </table>
 
+	{% if request.user.is_staff %}	
+	<h3>Lista de procesos activos: {{procesos_activos}}</h3>
+	{% endif %}
 
 {% if is_paginated %}
   <ul class="pagination">
@@ -90,3 +155,4 @@
 
 
 {% endblock %}
+

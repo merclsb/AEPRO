@@ -1,69 +1,81 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="es">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    
-    <title>{% block head_title %}AEPRO {% endblock %}</title>
-
-    {% include "head_css.html" %}
-
-<script type="text/javascript" src="{% static 'js/jquery.1.12.4.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/bootstrap.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/fontawesome.js' %}"></script>
-
-
-  </head>
-
-  <body>
-
-    {% include "navbar.html" %}
-    
-  
-
-<!--<div class="container-fluid">-->
-    <div class="container">
-        {% block encabezado %}
-        {% endblock %}
-        <hr/>
-        <br/>
-
-        {% block contenido %}
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="">
+        <meta name="author" content="">
         
-        {% endblock contenido%}
+        
+        <title>{% block head_title %}AEPRO {% endblock %}</title>
+
+        {# include "head_css.html" #}
+
+        <script type="text/javascript" src="{% static 'js/jquery.1.12.4.min.js' %}"></script>
+        <!--<script type="text/javascript" src="{% static 'js/bootstrap.js' %}"></script>-->
+        <script type="text/javascript" src="{% static 'js/fontawesome.js' %}"></script>
+        <!--<link href="{% static 'js/jquery.js' %}" rel="stylesheet">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js"></script>-->
+        {% include "head_css.html" %}
+
+    </head>
+
+
+    <body>
+       
+        {% include "navbar.html" %}
+        <br>
+      
+
+        <!--<div class="container-fluid">-->
+        <div class="container">
+            <div class="row">
+             <div class="col-md-8 col-lg-12">
+             <!--<div class="page-header">-->
+            {% if request.user.is_authenticated %}
+                {% block encabezado %}
+                {% endblock %}
+                <hr/>
+            {% endif %}
+            {% block contenido %}
+            {% endblock contenido%}
+
+            
+        
+        </div>
+        </div>
+        </div>
+
+        {%include "footer.html" %}
+
 
         
-    </div>
-
-    {% include "footer.html" %}
 
 
-    
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+         <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+         <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
+        <!-- Placed at the end of the document so the pages load faster -->
+        <!--<script src="{% static 'js/jquery.min.js' %}"></script>
+        <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>-->
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug 
+        <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js">
+            </script>
+            <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
+            </script>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>--> 
+    </body>
 
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-     <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
-    <!-- Placed at the end of the document so the pages load faster -->
-    <!--<script src="{% static 'js/jquery.min.js' %}"></script>
-    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>-->
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug 
-    <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js">
-        </script>
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js">
-        </script>
-<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>-->
-  </body>
 </html>

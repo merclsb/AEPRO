@@ -1,0 +1,73 @@
+
+
+{% extends 'base.html' %}
+
+<style type="text/css">
+#container {
+    display: table;
+    }
+
+  #row  {
+    display: table-row;
+    }
+
+  #left, #right, #middle {
+    display: table-cell;
+    }
+</style>
+{% load static from staticfiles %}
+{% block encabezado %}
+	<h3>{{titulo}}</h3>
+{% endblock %}
+
+{% block contenido %}
+	ID:{{ resultado_form.id_analisis}} <br>
+	Titulo: {{resultado_form.titulo_descriptivo}} <br>
+	Archivo: <a href="{{resultado_form.file.url}}" class="href">{{resultado_form.file.name}}</a><br>
+	Fecha creacion <span>{{ resultado_form.timestamp }}</span> <br>
+	Comentario: <span>{{ resultado_form.comentario}}</span> <br>
+
+
+
+	<ul>
+	<li>max: {{descriptiva.max}} </li>
+	<li>min: {{descriptiva.min}}</li>
+	<li>mean: {{descriptiva.mean}} </li>
+
+	{% for key,value in descriptiva.items %}
+		<li>{{key}} - {{value}} </li>
+	{% endfor %}
+	</ul>
+<div id="container">
+<div id="row">
+
+  <div id="row">
+  	<div class="col-sm-6">{{ graph|safe }}</div>
+	<div class="col-sm-6">{{ graph2|safe }}</div>
+  </div>
+  <div id="row">
+	<div class="col-sm-6">{{ graph3|safe }}</div>
+  </div>
+    <div id="row">
+	<div class="col-sm-12">{{ graph5|safe }}</div>
+  </div>
+</div>
+	
+
+
+
+	</div>
+
+</div>
+
+</div>
+	<ul>
+	 <div class="span2">
+        <a class="btn btn-primary"href="{% url 'analisis_cep_update' resultado_form.id_analisis%}" class="href">Actualizar informacion</a>
+        <a class="btn btn-danger"href="{% url 'analisis_deletecbv' resultado_form.id_analisis%}" class="href">Borrar</a>
+        </div>
+
+	</ul>
+</div>
+
+{% endblock %}

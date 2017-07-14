@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block encabezado %}
+	<h1>Perfíl</h1>
+	<hr>
+{% endblock %}
+
+{% block contenido %}
+
+<div class='row'>
+	<!--<div class='col-sm-12 col-sm-offset-3'>-->
+		<div class='col-sm-6 col-md-4 col-sm-offset-3'>
+	
+		<form method="POST"action="">{% csrf_token %}
+			{{formulario|crispy}}
+
+			<input class='btn btn-primary' type="submit" value='Guardar'/>
+			<a href="/" class="btn btn-default">Cancelar</a>
+
+		</form>
+		
+</div>
+</div>
+
+{% endblock %}
+

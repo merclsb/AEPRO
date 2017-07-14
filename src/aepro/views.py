@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.models import User
@@ -17,7 +17,8 @@ from .models import (
 from .forms import (
     AnalisisModelForm,
     FormularioContacto, 
-
+    UpdateResultadoFDA,
+    ValidacionFicheroForm,
     )
 
 #CBV
@@ -31,6 +32,12 @@ import os
 import json
 import plotly.offline as opy
 import plotly.graph_objs as go
+
+from subprocess import check_output
+
+def get_pid(name):
+    return list(map(int,check_output(["pidof",name]).split()))
+
 
 class LoginRequired(object):
     @method_decorator(login_required)
@@ -99,11 +106,11 @@ def analisis_model_form_crear(request):
 
                 
                 #TASK-->Matlab
-                #subprocess.Popen( ('python aepro/task_matlab.py {}').format(instancia.id_analisis),shell=True)
+                subprocess.Popen( ('python aepro/task_matlab.py {}').format(instancia.id_analisis),shell=True)
 
         except Exception as e: 
             print (e)
-        return HttpResponseRedirect(reverse('analisis_listcbv'))
+        return render(request,'analisis_done.html')
         #return HttpResponseRedirect(instancia.get_absolute_url())# para redigir al propio analisis creado
 
     context = {
@@ -116,7 +123,7 @@ def analisis_model_form_crear(request):
 class AnalisisListView(LoginRequired,ListView):
     model = Analisis
     template_name= "analisis_list_view.html"
-    paginate_by = 5
+    paginate_by = 10
     # por defecto
     # template : analisis_list.html
     #           object_list, ya muestra una lista de todos los objetos
@@ -126,6 +133,12 @@ class AnalisisListView(LoginRequired,ListView):
         #print (qs)
         #print (qs.first())
         return (qs)
+
+    def get_context_data(self, **kwargs):
+         context = super(AnalisisListView, self).get_context_data(**kwargs)
+         
+         context['procesos_activos'] = get_pid("MATLAB")
+         return context
 
 # class UserListView(ListView):
 #     model = User
@@ -148,8 +161,6 @@ class AnalisisDetailView(LoginRequired,DetailView):
 
 
 
-#guardar como pdf
-
 class AnalisisDeleteView(LoginRequired,DeleteView):
     model = Analisis 
     template_name = 'analisis_delete_view.html'
@@ -157,15 +168,130 @@ class AnalisisDeleteView(LoginRequired,DeleteView):
     #Filtrar los resultados solo para el usuario que realiza la solicitud
     def get_queryset(self, *args,  **kwargs):
         qs = super(AnalisisDeleteView, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
-        #print (qs)
-        #print (qs.first())
         return (qs)
 
     def get_success_url(self):
         return reverse('analisis_listcbv')
 
+class AnalisisDeleteViewError(LoginRequired,DeleteView):
+    model = Analisis 
+    template_name = 'analisis_delete_view_error.html'
 
-class AnalisisUpdateView(LoginRequired,UpdateView):#--> models:Analisis:get_absolute_url
+    #Filtrar los resultados solo para el usuario que realiza la solicitud
+    def get_queryset(self, *args,  **kwargs):
+        qs = super(AnalisisDeleteViewError, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
+        print(self.request.POST.get('pk'))
+        return (qs)
+    def get_success_url(self):
+        return reverse('analisis_listcbv')
+
+
+
+# class AnalisisUpdateView(LoginRequired,UpdateView):#--> models:Analisis:get_absolute_url
+#     model = Analisis 
+#     fields = ['titulo_descriptivo','comentario']
+    
+#     template_name = 'analisis_update_view.html'
+
+#     #Filtrar los resultados solo para el usuario que realiza la solicitud
+#     def get_queryset(self, *args,  **kwargs):
+#         qs = super(AnalisisUpdateView, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
+#         print (qs)
+#         print (qs.first())
+#         return (qs)
+        
+    # def get_success_url(self):
+    #     return reverse('analisis_listcbv')
+
+
+class Analisis_FDA_UpdateView(LoginRequired,UpdateView):#--> models:Analisis:get_absolute_url
+    model = Analisis
+    form_class = UpdateResultadoFDA,
+    #fields = ['titulo_descriptivo','comentario']
+    
+    template_name = 'analisis_update_view.html'
+
+    #Filtrar los resultados solo para el usuario que realiza la solicitud
+    def get_queryset(self, *args,  **kwargs):
+        qs = super(Analisis_FDA_UpdateView, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
+        #print(self.kwargs.get('pk',0))
+        return (qs)
+
+    def get(self, request,  *args, **kwargs):
+        self.object = Analisis.objects.get(id_analisis=kwargs['pk'])
+        print("-----")
+        print(self.object)
+        id_analisis = kwargs['pk']
+        analisis = self.model.objects.get(id_analisis=id_analisis)
+        f=analisis.analisis_fda.id_fda
+        
+        form_class = self.get_form_class()
+        form = UpdateResultadoFDA(initial={'titulo_descriptivo':analisis.titulo_descriptivo,
+                                  'comentario':analisis.comentario,
+                                  'nombre_grafica':analisis.analisis_fda.resultados['nombre_grafica'],
+                                  'xasix':analisis.analisis_fda.resultados['xasix'],
+                                  'yasix':analisis.analisis_fda.resultados['yasix'],
+                                  })
+        
+        context = self.get_context_data(object=self.object, form=form)
+        context['xasix'] = analisis.analisis_fda.resultados['xasix'] #whatever you would like
+         
+        return self.render_to_response(context)
+
+
+    def get_context_data(self, **kwargs):
+         context = super(Analisis_FDA_UpdateView, self).get_context_data(**kwargs)
+         return context
+
+    def post (self, request, *args, **kwargs):
+        self.object = self.get_object
+        id_analisis = kwargs['pk']
+        analisis = self.model.objects.get(id_analisis=id_analisis)
+        #res_fda = FDA.objects.get(analisis_id=id_analisis)
+        print(analisis.analisis_fda.id_fda)
+        print("POST")
+        #recoger la informacion del formulario
+        #Para analisis guardamos el titulo y el comentario
+        formulario = self.form_class(request.POST, instance=analisis) # sino se indica la instancia, generaria uno nuevo
+        if formulario.is_valid():
+          datos_formulario = formulario.cleaned_data
+          print(datos_formulario.get('comentario'))
+          #formulario['xasix']=analisis.analisis_fda.resultados['xasix']
+
+          nombre_grafica=datos_formulario.get("nombre_grafica")
+          xasix=datos_formulario.get("xasix")
+          yasix=datos_formulario.get("yasix")
+ 
+          print(yasix)
+          #Para el resultado fda guardamos los ejes y el titulo de la grafica
+          
+          #analisis.analisis_fda.resultados['xasix']
+          valores = {
+                  "x":analisis.analisis_fda.resultados['x'],
+                  "y":analisis.analisis_fda.resultados['y'],
+                  "nombre_grafica":nombre_grafica,
+                  "xasix":xasix,
+                  "yasix":yasix,
+
+          }
+          FDA.objects.filter(analisis=id_analisis).update(resultados=valores)
+          #print (ResultadoFDA.objects.filter(analisis=sys.argv[1]).update(estado=True))
+          print(analisis.analisis_fda.resultados['y'])
+          print(analisis.analisis_fda.resultados['xasix'])
+          print(analisis.analisis_fda.resultados['yasix'])
+          formulario.save()
+          return HttpResponseRedirect(self.get_success_url())
+        else:
+          return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self, **kwargs):
+      print(self.kwargs['pk'])
+      return reverse('detalle_resultado_fda', args=(self.kwargs['pk'],))
+      #return reverse('detalle_resultado_fda', args=(self.object.id_analisis,))
+    
+
+
+class Analisis_CEP_UpdateView(LoginRequired,UpdateView):#--> models:Analisis:get_absolute_url
     model = Analisis 
     fields = ['titulo_descriptivo','comentario']
     
@@ -173,17 +299,71 @@ class AnalisisUpdateView(LoginRequired,UpdateView):#--> models:Analisis:get_abso
 
     #Filtrar los resultados solo para el usuario que realiza la solicitud
     def get_queryset(self, *args,  **kwargs):
-        qs = super(AnalisisUpdateView, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
-        print (qs)
-        print (qs.first())
+        qs = super(Analisis_CEP_UpdateView, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
         return (qs)
         
-    def get_success_url(self):
-        return reverse('analisis_listcbv')
+    def get_success_url(self, **kwargs):
+      return reverse('detalle_resultado_cep', args=(self.object.id_analisis,))
+      print(self.object)
+
+
+
+
+
 
 @login_required(login_url='/accounts/login/')
 def detalle_resultado_fda(request, pk):
-    pass
+    # Controlar que cada usuario solo puede ver sus resultados
+    titulo="Resultado del Analisis Funcional de Datos"
+    a=Analisis.objects.filter(user_id=request.user.id)
+    template = "analisis_resultado_detail_fda.html"
+    resultado = get_object_or_404(a, pk=pk)
+    periodo=resultado.periodo
+
+
+    #GRAFICA 1 - LINEA
+    out=[]
+    trace_r=[]
+    trace_out=[]
+    data = []
+
+    x = resultado.analisis_fda.resultados['x']
+    y = resultado.analisis_fda.resultados['y']
+     
+
+
+    for i in range(len(x)):
+        trace_r.append(go.Scatter(y=x[i], marker={'color': 'grey', 'symbol': 104, 'size': "5"},
+                        mode="lines",  name= periodo+' :'+str(i+1)))
+    for j in range(len(y)):
+        #print(j)
+        trace_out.append (go.Scatter(y=x[y[j]-1], marker={'color': 'red', 'symbol': 104, 'size': "10"},
+                            mode="lines",  name='Outlier ->: '+periodo+' :'+str(y[j]) ) )
+
+    for i in range(len(trace_r)):
+        data.append(trace_r[i])
+
+    for j in range(len(trace_out)):
+        data.append(trace_out[j])
+
+    data2=go.Data(data)
+    layout2=go.Layout(title=resultado.analisis_fda.resultados['nombre_grafica'], xaxis={'title':resultado.analisis_fda.resultados['xasix']}, yaxis={'title':resultado.analisis_fda.resultados['yasix']})
+    figure2=go.Figure(data=data2,layout=layout2)
+    div2 = opy.plot(figure2, auto_open=False, output_type='div')
+
+
+    contexto = {
+        "titulo":titulo,
+        "resultado_form":resultado,
+        "resultado_id":pk,
+        #'graph':div,
+        'graph2':div2,
+
+
+
+    }
+    return render(request, template, contexto)
+
 
 @login_required(login_url='/accounts/login/')
 def detalle_resultado_cep(request, pk):
@@ -223,4 +403,29 @@ def contacto(request):
     #************** return HttpResponseRedirect('/') -> mensaje enviado
     return render (request,plantilla,contexto)
 
+@login_required(login_url='/accounts/login/')
+def ValidarFichero(request):
+  estado = ''
+  if request.method == 'POST':
+    formulario = ValidacionFicheroForm(request.POST or None, request.FILES or None)
+    
+    if formulario.is_valid():
+
+      estado = 'Formato correcto'
+      print (request.FILES)
+      print (request.FILES['file'].name)
+      print (request.FILES['file'].content_type)
+      #formulario.save()
+      #return HttpResponseRedirect('/')
+  else:
+        formulario = ValidacionFicheroForm()
+
+  titulo = "Validar Fichero"
+  contexto = {
+        "estado":estado,
+        "titulo":titulo,
+        "form":formulario,
+    }
+  plantilla = "validar_file.html"
+  return render (request,plantilla,contexto)
 

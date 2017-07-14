@@ -2,58 +2,62 @@
 {% load static from staticfiles %}
 {% block head_title %}{{block.super}} | {{titulo}}{% endblock %}
 
-{% block encabezado %}
-	<h1>{{titulo}}</h1>
-	<h3>Usuario: {{ request.user }}</h3>
-{% endblock %}
-
 {% block contenido %}
 
 {% if request.user.is_authenticated %}
+
+	<div class="container">
 	<div class='row'>
-		<div class='col-sm-4'>
+		<div class='col-md-4'>
 			
 				<p>Bievenido {{user.username|upper}},
 				la última vez que te vimos por aquí fue el {{user.last_login}}.</p>
 				<p>Eres miembro desde el {{user.date_joined}}</p>
 
 		</div>
-		<div class='col-sm-6 col-sm-offset-3'>
-			<img src='{% static "img/analisis_vectorial.png" %}' height="420" width="600"/>
+		<div class='col-md-6'>
+			<a><img src='{% static "img/analisis_vectorial.png" %}' height="420" width="600"/></a>
 		</div>
 	</div>
+	</div> 
+
+
+      
+   
 {% endif %}
 
 
-	<div class='row'>
-		
+
 {% if not user.is_authenticated %}
-		<div class='col-sm-4'>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eveniet, vel perferendis. Aperiam quam impedit voluptatum vero recusandae ut iste eos, doloribus, omnis sit delectus odio rerum nobis optio ipsa?
-			</p>
-		</div>
-		<div class='col-sm-4' style='background-color:grey'>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eveniet, vel perferendis. Aperiam quam impedit voluptatum vero recusandae ut iste eos, doloribus, omnis sit delectus odio rerum nobis optio ipsa?
-			</p>
-			<i class="fa fa-plus" aria-hidden="true"></i>
-		</div>
 
-		<div class='row'>
-		<div class='col-sm-6 pull-right'>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eveniet, vel perferendis. Aperiam quam impedit voluptatum vero recusandae ut iste eos, doloribus, omnis sit delectus odio rerum nobis optio ipsa?
-			<i class="fa fa-plus" aria-hidden="true"></i>
-			</p>
-			
-		</div>
-		<div class='col-sm-6 pull-right'>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eveniet, vel perferendis. Aperiam quam impedit voluptatum vero recusandae ut iste eos, doloribus, omnis sit delectus odio rerum nobis optio ipsa?
-			<i class="fa fa-plus" aria-hidden="true"></i>
-			</p>
-			
-		</div>
+    <div class="jumbotron" style="background-color:#777; color:white">
+      <div class="container">
+        <div class="row featurette">
+            <div class="col-md-8">
+                <h1 class="text-center">Analiza tus procesos medioambientales de una manera sencilla!</h1>
+                <p class="text-center">
+                    <b>Confupro</b> es una aplicacion web <b>simple</b> y <b>facil de usar</b>
+                    para analizar tus procesos de medicion de calidad de agua y de aire.
+                    <br><br>
+                   
+            </div>
+            <div class="col-md-4">
+            <br>
+                <a href="{% static 'img/fda_dashboard.png' %}" class="thumbnail">
+                    <img src="{% static 'img/fda_dashboard.png' %}">
+                </a>
+                <div class="addthis_sharing_toolbox text-center"></div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="jumbotron" style="background-color:#777; color:white">
+</div>
 {% endif %}
-	</div>
 
+
+ 
 
 	
 

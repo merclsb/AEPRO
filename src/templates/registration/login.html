@@ -5,15 +5,17 @@
 {% block contenido %}
 <br>
 <div class='col-sm-4 col-sm-offset-4 cols-xs-3' >
+<h2 class="form-signin-heading">Inicia sesión</h2>
 <form method="post" action=".">
   {% csrf_token %} 
   {{ form|crispy }}
 
-  <input type="submit" value="{% trans 'Iniciar sesion' %}" />
+  <input type="submit" class="btn btn-lg btn-primary btn-block" value="{% trans 'Iniciar sesion' %}" />
   <input type="hidden" name="next" value="{{ next }}" />
 </form>
-
-<p>{% trans "Has olvidado tu contrasena" %}? <a href="{% url 'auth_password_reset' %}">{% trans "Restablecer" %}</a>!</p>
-<p>{% trans "No tienes cuenta" %}? <a href="{% url 'registration_register' %}">{% trans "Registrarte" %}</a>!</p>
+<p class="text-right">
+	<p>{% trans "Has olvidado tu contrasena" %}? <a href="{% url 'auth_password_reset' %}">{% trans "Restablecer" %}</a>!</p>
+	<p>{% trans "No tienes cuenta" %}? <a href="{% url 'registration_register' %}">{% trans "Registrarte" %}</a>!</p>
+</p>
 </div>
 {% endblock %}

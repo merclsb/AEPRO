@@ -3,17 +3,18 @@
 
 {% block encabezado %}
 	<h1>{{titulo}}</h1>
-	<h3>Usuario: {{ request.user }}</h3>
+	<h3>Titulo: {{ object.titulo_descriptivo }}</h3>
 {% endblock %}
 
 {% block contenido %}
 
 	<div class='row'>
 	<!--<div class='col-sm-12 col-sm-offset-3'>-->
-		<div class='col-sm-6 col-md-4'>
+		<div class='col-sm-6 col-md-4 col-sm-offset-3'>
 		<!--<h1 class='text-align-center'>Contacto</h1>-->
 		<form method="POST"action="">{% csrf_token %}
 		{{form|crispy}}
+
 		<input class='btn btn-primary'type="submit" value='Actualizar'/>
 		<a href="{{ object.get_absolute_url}}" class="btn btn-default">Cancelar</a>
 	</form>

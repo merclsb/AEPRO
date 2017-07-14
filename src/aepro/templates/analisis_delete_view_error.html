@@ -10,12 +10,13 @@
 
 	<div class='row'>
 	<div class='col-sm-6 col-sm-offset-3'>
+	<h3><p>Se produjo un error inesperado.</p>
+	<p>No hemos podido completar el analisis. </p> </h3>
 		<!--<h1 class='text-align-center'>Contacto</h1>-->
 		<form method="POST"action="">{% csrf_token %}
-		<h3><p>¿Seguro que quieres borrar "{{ object.titulo_descriptivo }}"?</p>
-		<p>Se borrá toda la informacion y resultados asociados a dicho analisis</p></h3>
 		
-		<input class='btn btn-danger'type="submit" value='Borrar'/>
+		
+		<input class='btn btn-danger'type="submit" value='Borrar datos'/>
 		<a href="{% url 'analisis_listcbv' %}" class="btn btn-default">Cancelar</a>
 	</form>
 	</div>

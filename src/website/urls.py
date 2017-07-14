@@ -20,11 +20,16 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 
+from .views import (
+    profile,
+    )
+
 urlpatterns = [
     url(r'^', include('aepro.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^accounts/', include('registration.backends.default.urls')),#REGISTRATION REDUX
+    url(r'^accounts/profile/', profile,name='profile'),
 ]
 if settings.DEBUG:
 	urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

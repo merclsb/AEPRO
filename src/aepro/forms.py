@@ -2,11 +2,11 @@
 from django import forms
 #widget que permite usar datetiempicker en el formulario para seleccion dia y hora
 from bootstrap3_datetime.widgets import DateTimePicker
-#lib/python3.4/site-packages/bootstrap3_datetime/widgets.py
-	#from django.forms.utils import flatatt
+#/Users/usuario/Desktop/DateTime/lib/python3.4/site-packages/bootstrap3_datetime/widgets.py
+#from django.forms.utils import flatatt
 
 from .models import (
-	Analisis, 
+	Analisis,
 	)
 
 #comprobar el formato del archivo que suben los usuarios clean_file
@@ -29,28 +29,25 @@ def column_len(sheet, index):
 		col_len -= 1
 	return col_len
 
-class AnalisisForm(forms.Form):
-    nombre = forms.CharField(max_length=100)
-    valor = forms.IntegerField()#required=false
-    media = forms.FileField()#es correcto asi??
+
 
 #Puede usarse en Admin, en vez de Meta: Modelo
 class AnalisisModelForm(forms.ModelForm):
 
 
-	file = forms.FileField(allow_empty_file=True,help_text="Solo se permite subir archivos en formato XLS---")
+	file = forms.FileField(allow_empty_file=True,help_text="Solo se permite subir archivos en formato XLS!!!!")
 	
 	fecha_inicio = forms.DateTimeField(required=False,widget=DateTimePicker(options={"format": "YYYY-MM-DD HH:mm","pickSeconds": False,
 										"defaultDate": "2017-06-4 10:29",}))
 	fecha_paso = forms.DateTimeField(required=False,
 		widget=DateTimePicker(options={"format": "YYYY-MM-DD HH:mm",
 										"pickSeconds": False,
-										"defaultDate": "2017-06-14 10:29",}))
+										"defaultDate": "2017-06-4 11:29",}))
 	fecha_fin = forms.DateTimeField(required=False,
 		widget=DateTimePicker(options={"format": "YYYY-MM-DD HH:mm",
 										"pickSeconds": False,
 										'locale': 'es',
-										"defaultDate": "2017-06-30 10:29",
+										"defaultDate": "2018-06-5 10:29",
 										}))
 	
 
@@ -84,7 +81,7 @@ class AnalisisModelForm(forms.ModelForm):
 
 		help_texts = {
 			"file": "Solo se permite subir archivos en formato XLS",
-			"tipo_analisis": "CEP: permite calcular ...\n AFD: Permite calcular ..." ,
+			"tipo_analisis": "CEP: permite calcular ...\n FDA: Permite calcular ..." ,
 
 		}
 
@@ -139,7 +136,7 @@ class AnalisisModelForm(forms.ModelForm):
 								if not(first_sheet.cell_type(reg,1)==2 or first_sheet.cell_type(reg,1)==0): # Si no es un campo fecha Error
 									raise forms.ValidationError("Error algun registro no esta en formato numero o blanco")
 							
-							os.remove(tmp_file)#ELEMINAR EL ARCHIVO TEMPORAL
+							# os.remove(tmp_file)#ELEMINAR EL ARCHIVO TEMPORAL
 							return file#Devolvemos el fichero
 
 						else:#column_len(first_sheet,0)>=24:
@@ -153,10 +150,14 @@ class AnalisisModelForm(forms.ModelForm):
 				except xlrd.XLRDError as e:# if xlrd.open_workbook(tmp_file): -->CATCH
 					#print (e.message)
 					raise forms.ValidationError("No es un fichero valido: XLRDError")
-
+				finally:
+					os.remove(tmp_file)#ELEMINAR EL ARCHIVO TEMPORAL
+					
 			else: #if (mime_type == 'application/vnd.ms-excel'  or mime_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'):
 				raise forms.ValidationError("No es un formato valido : '.xls'")
 					
+		# return file
+
 	#VALIDAR LAS FECHAS
 	def clean(self):
 		cleaned_data = super(AnalisisModelForm, self).clean()
@@ -189,11 +190,14 @@ class AnalisisModelForm(forms.ModelForm):
 		if 'FDA' in ta and pa == 'DIA' and (f3-f1).days >= 731:
 			raise forms.ValidationError("El periodo de analisis NO puede ser superior a 2 años ...")#tiene que ser inferior a 2 años
 		
-
-
-
-
-
+class UpdateResultadoFDA(forms.ModelForm):
+	nombre_grafica = forms.CharField(max_length=50)
+	xasix = forms.CharField(max_length=20)
+	yasix = forms.CharField(max_length=20)
+ 
+	class Meta:
+		model = Analisis
+		fields = ['titulo_descriptivo','comentario']
 
 
 class FormularioContacto(forms.Form):
@@ -207,5 +211,78 @@ class FormularioContacto(forms.Form):
 		return email
 
 
+class ValidacionFicheroForm(forms.Form):
+	file = forms.FileField(label='Archivo',
+							help_text="Solo se permite subir archivos en formato .xls o xlsx")
+	
+	#Validar el fichero
+	def clean_file(self):
+		file = self.files['file']
+		print(file)
+		#temporalmente se guarda el fichero para comprobar su formato y estructura
+		path = default_storage.save(("tmp/{}").format(file), ContentFile(file.read()))
+		tmp_file = os.path.join(settings.MEDIA_ROOT, path)
+		
+		if file:
+			#print (magic.from_file("file", mime=True)
+			print(self.cleaned_data['file'])
+			print (file)#nombre del archivo
+			mime = MimeTypes()
+			mime_type = mime.guess_type(file.name)[0]
+			print ("***mimetipe",mime_type)
+			# xls = application/vnd.ms-excel
+			# xlsx = application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+			if (mime_type == 'application/vnd.ms-excel'  or mime_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'):
+				print("Formato CORRECTO")
+				try:
+					xlrd.open_workbook(tmp_file)#BLOQUE TRY CATCH ???
+					print ("ARCHIVO ABIERTO",True)
+					book = xlrd.open_workbook(tmp_file)
+					#if book.sheet_by_index(0)>0:
+					print ("Numero de hojas",book.nsheets)
+					first_sheet = book.sheet_by_index(0)#seleccionamos la primera hora del fichero excel
+					# La columna 0 contiene fecha No puede tener registros en blanco
+					if first_sheet.ncols==2:
+						print("tiene 2 columnas")
+						#definimos un funcion que permita saber cuantos registros tiene una columna, ya que recorremos todos los regitros de cada columna
+						print (column_len(first_sheet,0))
+						print (column_len(first_sheet,1))
+						#comprobamos el numero de registros de la columna0
+						if column_len(first_sheet,0)>=24:
+							print("tiene > 24 registros")
+							# Cell Types: 0=Empty, 1=Text, 2=Number, 3=Date, 4=Boolean, 5=Error, 6=Blank
+							#Comprobar que la comlumna 0 sean valores: 3
+							#Comprobar que la comlumna 1 sean valores: 2 o 6
+							print(first_sheet.cell_type(0,0),first_sheet.cell_type(0,1)) # F=0 C=0/1
+							#comprobar que los campos fecha son fecha
+							for reg in range(0,first_sheet.nrows):
+								if first_sheet.cell_type(reg,0)!=3: # Si no es un campo fecha Error
+									raise forms.ValidationError("Error: algun registro no esta en formato fecha")
+							#comprar que los valores de la columna 2 son : numeros vacios o blancos
+							for reg in range(0,first_sheet.nrows):
+								if not(first_sheet.cell_type(reg,1)==2 or first_sheet.cell_type(reg,1)==0): # Si no es un campo fecha Error
+									raise forms.ValidationError("Error algun registro no esta en formato numero o blanco")
+							
+							# os.remove(tmp_file)#ELEMINAR EL ARCHIVO TEMPORAL
+							return file#Devolvemos el fichero
+
+						else:#column_len(first_sheet,0)>=24:
+							raise forms.ValidationError("No es un formato valido: + >24 registros")
+					
+					else:
+						raise forms.ValidationError("No es un formato valido: solo 2 columnas")
 
 
+
+				except xlrd.XLRDError as e:# if xlrd.open_workbook(tmp_file): -->CATCH
+					#print (e.message)
+					raise forms.ValidationError("No es un fichero valido: XLRDError")
+				finally:
+					os.remove(tmp_file)#ELEMINAR EL ARCHIVO TEMPORAL
+					
+			else: #if (mime_type == 'application/vnd.ms-excel'  or mime_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'):
+				os.remove(tmp_file)#ELEMINAR EL ARCHIVO TEMPORAL	
+				raise forms.ValidationError("No es un formato valido : '.xls'")
+					
+
+				
