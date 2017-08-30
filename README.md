@@ -24,3 +24,15 @@ http://127.0.0.1:8000/
 http://127.0.0.1:8000/admin
 
 ```
+# Cosideraciones previas
+
+```
+Tener instalado: pidof
+
+Bootsatrap DateTime Widget 
+  al importarlo (bootstrap3_datetime.widgets import DateTimePicker) genera un error, por lo que hay que dirigirse a  
+  #/$PATH/DateTime/lib/python3.4/site-packages/bootstrap3_datetime/widgets.py
+  y modificar la linea a flatatt
+  #from django.forms.utils import flatatt
+
+```
