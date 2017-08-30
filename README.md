@@ -39,6 +39,11 @@ Bootsatrap DateTime Widget
 
 # Como se ve la aplicación
 
-![](https://image.ibb.co/jcHWU5/Screen_Shot_2017_08_30_at_13_55_04.png)
+
 ![](https://image.ibb.co/jcyYbk/Screen_Shot_2017_08_30_at_14_27_57.png)
+
+![](https://image.ibb.co/fpUbe5/Screen_Shot_2017_08_30_at_13_21_24.png)
+
+![](https://image.ibb.co/jcHWU5/Screen_Shot_2017_08_30_at_13_55_04.png)
+
 
