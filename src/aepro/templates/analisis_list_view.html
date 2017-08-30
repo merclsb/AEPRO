@@ -10,24 +10,24 @@
 {% if error_message %}
 	<p><strong>{{ error_message}}</strong></p>
 {% endif %}
+
 <div class="table-responsive">
 {% if object_list %}
-<table class="table table-striped">
-	<thead>
-		<tr>
-		{% if request.user.is_staff %}
-			<th>#</th>
-			{% endif %}
-			<th>Titulo</th>
-			<th>Tipo Analisis</th>
-			<th>Fecha</th>
-			<th>Estado</th>
-		</tr>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+			{% if request.user.is_staff %}
+				<th>#</th>
+				{% endif %}
+				<th>Titulo</th>
+				<th>Tipo Analisis</th>
+				<th>Fecha</th>
+				<th>Estado</th>
+			</tr>
 
-	</thead>
+		</thead>
 
-<tbody>
-		
+		<tbody>
 			{% for obj in object_list  %}
 			<tr>
 				{% if request.user.is_staff %}
@@ -39,32 +39,51 @@
 				</a></td>
 				<td>{{ obj.tipo_analisis }}</td>
 				<td>{{ obj.timestamp }}</td>
-				<td>
-
+				<td> 
+<!--Bloque CEP-->
 				{% if obj.analisis_cep.analisis_id %}
 					{% if request.user.is_staff %}	
 					{{obj.analisis_cep.pid.pid}}
 					{{obj.analisis_cep.pid.estado}}
 					{% endif %}
-
-					{% if obj.analisis_cep.pid.pid not in procesos_activos %} 
-						{%if obj.analisis_cep.pid.estado != 'finish'%}
-							<a class="btn btn-danger" href="{% url 'analisis_deletecbv' obj.id_analisis%}">Error CEP</a>
+					
+					
+					{% if  obj.analisis_cep.pid.pid not in procesos_activos and obj.analisis_cep.pid.estado != 'finish' %}
+					
+						{% if  obj.analisis_cep.pid.estado != 'run' %}
+							Pendiente de procesar...
 						{% endif %}
+						
 					{% endif %}
 
-					{# if obj.analisis_fda.estado #}
-					{% if obj.analisis_cep.pid.estado == 'finish'%}
-								<a class="btn btn-success" href="{% url 'detalle_resultado_cep' obj.id_analisis%}">Resultados CEP</a>
-							{% elif  obj.analisis_cep.pid.estado == 'run' or obj.analisis_cep.pid.estado == 'init'%}
-								{% if obj.analisis_cep.pid.pid  in procesos_activos %}
-								<a class="btn btn-warning">Calculando CEP...</a>
-								{% endif %}
-							
+					{# if obj.analisis_cep.estado #}
+					{% if obj.analisis_cep.pid.estado == 'run' and obj.analisis_cep.pid.pid in procesos_activos%}
+					
+							{# if  obj.analisis_cep.pid.pid in procesos_activos #}
+								<a class="btn btn-warning">Calculando cep...</a>
+							{# endif #}
+						
+					{%elif obj.analisis_cep.pid.estado == 'finish'%}
+							<a class="btn btn-success" href="{% url 'detalle_resultado_cep' obj.id_analisis%}">Resultados cep</a>
+					
+					
 					{% endif %}
+					
 
+					
+
+					{% if  obj.analisis_cep.pid.pid not in procesos_activos and obj.analisis_cep.pid.estado != 'finish' %}
+					
+						{% if  obj.analisis_cep.pid.estado == 'run' %}
+							<a class="btn btn-danger" href="{% url 'analisis_deletecbv_error' obj.id_analisis%}">Error cep</a>
+						{% endif %}
+						
+					{% endif %}
 				{% endif %}
+<!--fin Bloque CEP-->	
 
+
+<!--Bloque FDA-->
 				{% if obj.analisis_fda.analisis_id %}
 					{% if request.user.is_staff %}	
 					{{obj.analisis_fda.pid.pid}}
@@ -103,27 +122,19 @@
 						{% endif %}
 						
 					{% endif %}
-						
-					
-					
-
-				
-					
-
-
 				{% endif %}
-
+<!--fin Bloque FDA-->				
 				</td>
 				
-			</tr>
 			{% endfor %}
+		</tbody>
+	</table>
 
-		{% else %}
+
+{% else %}
 			<h1>---No hay analisis creados---</h1>
-	{% endif %}
+{% endif %}
 
-	</tbody>
-</table>
 
 	{% if request.user.is_staff %}	
 	<h3>Lista de procesos activos: {{procesos_activos}}</h3>

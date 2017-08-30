@@ -2,24 +2,85 @@
 {% load static from staticfiles %}
 {% block head_title %}{{block.super}} | {{titulo}}{% endblock %}
 
+{% block encabezado %}
+    <h3> <span class="fa fa-book"></span>&nbsp;Inicio</h3>
+{% endblock %}
+
 {% block contenido %}
 
 {% if request.user.is_authenticated %}
 
-	<div class="container">
-	<div class='row'>
-		<div class='col-md-4'>
-			
-				<p>Bievenido {{user.username|upper}},
-				la última vez que te vimos por aquí fue el {{user.last_login}}.</p>
-				<p>Eres miembro desde el {{user.date_joined}}</p>
+    <div class="container">
 
-		</div>
-		<div class='col-md-6'>
-			<a><img src='{% static "img/analisis_vectorial.png" %}' height="420" width="600"/></a>
-		</div>
-	</div>
-	</div> 
+    <!--<div class='row'>
+        <div class='col-md-4'>
+            
+                <p>Bievenido {{user.username|upper}},
+                la última vez que te vimos por aquí fue el {{user.last_login}}.</p>
+                <p>Eres miembro desde el {{user.date_joined}}</p>
+
+        </div>
+        <div class='col-md-6'>
+            <a><img src='{% static "img/analisis_vectorial.png" %}' height="420" width="600"/></a>
+        </div>
+    </div>-->
+
+<div class='row'>
+        <div class='col-md-5'>
+            
+            <h3>Control estadistico de procesos</h3>
+            <p align="justify">
+                
+                &emsp;Este tipo de análisis trata los datos a estudiar(días, meses, años) en función de sus valores medios (resumiendo mucho la información), y  engloba el análisis descriptivo clásico y <s>el análisis del concepto de control estadístico(variabilidad).</s> <br>
+
+
+                &emsp;<b>Análisis descriptivo clásico:</b> permite conocer las características más importantes de los datos suministrados: media, mediana, moda, varianza… y los outliers puntuales (aquellos elementos anómalos frente a la muestra proporcionada). Como resultado de este tipo de análisis serán las siguientes graficas:  
+                •   Boxplot, 
+                •   Histograma, 
+                •   Probabilidad normal 
+                •   Autocorrelación. 
+                <br>
+
+                &emsp;<b>Análisis de control de calidad:</b> mediante este tipo de análisis el usuario podrá determinar si su proceso está bajo control, es decir en ausencia de variabilidad especial y únicamente sometido a variabilidad común, así como la capacidad del mismo para alcanzar los límites óptimos.
+                Se trata de un análisis empleado en procesos industriales, y se basa en el análisis descriptivo de los datos para establecer unos límites que determinen los outliers(evidencias de variabilidad asignable) de un proceso.
+
+
+            </p>
+        </div>
+        <br>
+        <br>
+            <div class='col-md-7'>
+                <img src='{% static "img/xbar_inicio.png" %}'></a>
+            </div>      
+
+        </div>
+        
+
+
+
+    <div class='row'>
+        
+        <div class='col-md-5'>
+            
+            <h3>Analisis Funcional de datos</h3>
+            <p align="justify">
+            &emsp;Este tipo de análisis permite tener en cuenta toda la información del periodo a analizar, siendo, a su vez, insensible a errores de medida en un porcentaje muy alto de los casos, que pueden ser considerados falsas alarmas en el análisis clásico. <br>
+            &emsp;Esto es debido a que este tipo de análisis trata los datos como funciones (curvas continuas) y no como un vector de datos, por lo que no se pierde información, permitiendo analizar la serie de manera continuada en el tiempo. <br>
+            &emsp;El resultado de este análisis, muestra los outliers (días, meses, años) en los cuales se ha producido algún tipo de desviación. La identificación de estos outliers se hace en base a la profundidad funcional, es decir a la desviación de cada una de las curvas de la función media. Como se puede observar en la Figura 35, el análisis funcional permite calcular las curvas representativas de los datos de la concentración de CO, de cada día, para una muestra de un mes (30 días). Como resultado del análisis se representan 30 curvas (gris) y se remarcan (negro) aquellas que indican la presencia de algún comportamiento anómalo en las muestras.
+            </p>
+        </div>
+        <br>
+        <br>
+        <div class='col-md-7'>
+            <img src='{% static "img/fda_inicio.png" %}'></a>
+        </div>
+        
+    </div>
+
+
+
+    <!--fin container-->
+    </div> 
 
 
       
@@ -30,35 +91,35 @@
 
 {% if not user.is_authenticated %}
 
-    <div class="jumbotron" style="background-color:#777; color:white">
+    <div class="jumbotron jumbotron-fluid" style="background-color:#777; color:white">
       <div class="container">
         <div class="row featurette">
-            <div class="col-md-8">
-                <h1 class="text-center">Analiza tus procesos medioambientales de una manera sencilla!</h1>
+            <div class="col-md-12">
+                <h1 class="text-center">Analiza tus procesos medioambientales <br>de una manera sencilla!</h1>
                 <p class="text-center">
-                    <b>Confupro</b> es una aplicacion web <b>simple</b> y <b>facil de usar</b>
+                    <b>Aepro</b> es una aplicacion web <b>simple</b> y <b>facil de usar</b>
                     para analizar tus procesos de medicion de calidad de agua y de aire.
                     <br><br>
                    
             </div>
-            <div class="col-md-4">
+            <div class="col-md-12">
             <br>
                 <a href="{% static 'img/fda_dashboard.png' %}" class="thumbnail">
                     <img src="{% static 'img/fda_dashboard.png' %}">
                 </a>
-                <div class="addthis_sharing_toolbox text-center"></div>
+               <!--  <div class="addthis_sharing_toolbox text-center"></div>-->
             </div>
         </div>
       </div>
     </div>
 
-    <div class="jumbotron" style="background-color:#777; color:white">
-</div>
+  <!--  <div class="jumbotron" style="background-color:#777; color:white">
+</div>-->
 {% endif %}
 
 
  
 
-	
+    
 
 {% endblock %}

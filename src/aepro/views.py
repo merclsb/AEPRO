@@ -32,6 +32,7 @@ import os
 import json
 import plotly.offline as opy
 import plotly.graph_objs as go
+import plotly.figure_factory as ff
 
 from subprocess import check_output
 
@@ -60,7 +61,7 @@ def inicio(request):
 
 @login_required(login_url='/accounts/login/')
 def analisis_model_form_crear(request):
-    titulo = "Analisis ModelForm"
+    titulo = "Crear Análisis"
     formulario = AnalisisModelForm(request.POST or None, request.FILES or None)
 
     if formulario.is_valid():
@@ -367,7 +368,239 @@ def detalle_resultado_fda(request, pk):
 
 @login_required(login_url='/accounts/login/')
 def detalle_resultado_cep(request, pk):
-    pass
+    # Controlar que cada usuario solo puede ver sus resultados
+    titulo="Resultado del Analisis Vectorial"
+    a=Analisis.objects.filter(user_id=request.user.id)
+    template = "analisis_resultado_detail_cep2.html"
+    resultado = get_object_or_404(a, pk=pk)
+    #print(resultado)
+    periodo=resultado.periodo
+
+    resultados = resultado.analisis_cep.resultados
+    
+    
+    #GRAFICA 0 - HISTOGRAMA+CURVA
+    x = resultados['datos'][0]  
+    hist_data = [x]
+    group_labels = ['valores']
+    fig = ff.create_distplot(hist_data, group_labels,curve_type='normal')
+    print(type(fig))
+    fig['layout'].update(title='Histograma')
+    div0 = opy.plot(fig,auto_open=False,image='jpeg',output_type='div')#output_type='div' auto_open=False, output_type='div'
+
+
+
+    #GRAFICA 1 - BOXPLOT
+    trace1 = {
+      #"x": resultados['datos'],
+      "y": resultados['datos'][0],
+      "marker": {"color": "#4CAF50"}, 
+      "name": "C02", 
+      "type": "box", 
+      "xaxis": "x1", 
+      "yaxis": "y1"
+    }
+    
+
+    data=go.Data([trace1])
+    layout=go.Layout(title = "Boxplot")
+    figure=go.Figure(data=data,layout=layout)
+    #print(type(figure))
+    div1 = opy.plot(figure, auto_open=False, output_type='div')
+
+    
+    data2 = go.Data([trace0,trace1])
+    layout=go.Layout()
+    figure2=go.Figure(data=data2,layout=layout)
+    div2 = opy.plot(figure2, auto_open=False, output_type='div')
+
+    # #GRAFICA 3 - DISTRIBUCION NORMAL
+
+    # #GRAFICA 4 - AUTOCORRELACION
+
+    #GRAFICA 5 - X-BAR
+    xkkk=[] # eje x
+    for i in range(len(resultados['imr_img']['pts'])):
+      xkkk.append(i)
+
+    outx = []
+    outy = []
+
+    #print(len(resultados['imr_img']['ooc']))
+    for i in range(len(resultados['imr_img']['ooc'])):
+      if resultados['imr_img']['ooc'][i]==1:
+        outx.append(i)
+    #print (outx)
+
+    if len(outx)>0:
+      j=0
+      for i in range(len(resultados['imr_img']['ooc'])):
+        #print (i)
+        #print(outx[j])
+        if i==outx[j]:
+          outy.append(resultados['imr_img']['pts'][i])
+          #print(resultados['imr_img']['ooc'][i])
+          j=j+1
+
+      #print (outy)
+
+    trace1 = {#PUNTOS
+    
+      "x": xkkk,#[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36], 
+      "y": resultados['imr_img']['pts'],#[-0.2625, -0.2925, -0.1425, -0.0875, -0.01, -0.045, -0.04, -0.0075, -0.0025, -0.1875, -0.21, -0.1725, -0.2025, -0.125, -0.14, -0.065, 0.0325, -0.13, -0.0925, 0.0825, 0.235, -0.0125, 0.065, 0.065, 0.215, 0.0975, 0.085, -0.235, -0.205, -0.27, -0.205, -0.1875, -0.1725, -0.185, -0.195, -0.105], 
+      "error_x": {"copy_ystyle": True}, 
+      "error_y": {
+        "color": "rgb(0,116,217)", 
+        "thickness": 1, 
+        "width": 1
+      }, 
+      "line": {
+        "color": "rgb(0,116,217)", 
+        "width": 2
+      }, 
+      "marker": {
+        "color": "rgb(0,116,217)", 
+        "size": 8, 
+        "symbol": "circle"
+      }, 
+      "mode": "lines+markers", 
+      "name": "Valores", 
+      "showlegend": True, 
+      "type": "scatter", 
+      "uid": "cb8982", 
+      "visible": True, 
+      "xaxis": "x", 
+      "yaxis": "y"
+    }
+    trace2 = {#OUTLIERS
+      "x": outx,#[2, 21, 23, 24, 25, 26, 27], 
+      "y": outy,#[-0.2925, 0.235, 0.065, 0.065, 0.215, 0.0975, 0.085], 
+      "error_x": {"copy_ystyle": True}, 
+      "error_y": {
+        "color": "rgb(255,65,54)", 
+        "thickness": 1, 
+        "width": 1
+      }, 
+      "line": {
+        "color": "rgb(255,65,54)", 
+        "width": 2
+      }, 
+      "marker": {
+        "color": "rgb(255,65,54)", 
+        "line": {"width": 3}, 
+        "opacity": 0.5, 
+        "size": 12, 
+        "symbol": "circle-open"
+      }, 
+      "mode": "markers", 
+      "name": "Outliers", 
+      "showlegend": True, 
+      "type": "scatter", 
+      "uid": "d7228d", 
+      "visible": True, 
+      "xaxis": "x", 
+      "yaxis": "y"
+    }
+    trace3 = {#LINEA CENTRAL
+      "x": len(resultados['imr_img']['pts']),#[0.5, 36.5], 
+      "y": resultados['imr_img']['cl'],#[-0.086389, -0.086389], 
+      "error_x": {"copy_ystyle": True}, 
+      "error_y": {
+        "color": "rgb(133,20,75)", 
+        "thickness": 1, 
+        "width": 1
+      }, 
+      "line": {
+        "color": "rgb(133,20,75)", 
+        "width": 2
+      }, 
+      "marker": {
+        "color": "rgb(133,20,75)", 
+        "size": 8, 
+        "symbol": "circle"
+      }, 
+      "mode": "lines", 
+      "name": "Centro", 
+      "showlegend": True, 
+      "type": "scatter", 
+      "uid": "135942", 
+      "visible": True, 
+      "xaxis": "x", 
+      "yaxis": "y"
+    }
+    trace4 = {#LIMITE SUPERIOR 
+      "x": len(resultados['imr_img']['pts']),#[0.5, 36.5, None, 0.5, 36.5], 
+      "y": resultados['imr_img']['ucl'],#[-0.281712, -0.281712, None, 0.108934, 0.108934], 
+      "error_x": {"copy_ystyle": True}, 
+      "error_y": {
+        "color": "rgb(255,133,27)", 
+        "thickness": 1, 
+        "width": 1
+      }, 
+      "line": {
+        "color": "rgb(255,133,27)", 
+        "width": 2
+      }, 
+      "marker": {
+        "color": "rgb(255,133,27)", 
+        "size": 8, 
+        "symbol": "circle"
+      }, 
+      "mode": "lines", 
+      "name": "Limite superior", 
+      "showlegend": True, 
+      "type": "scatter", 
+      "uid": "df651f", 
+      "visible": True, 
+      "xaxis": "x", 
+      "yaxis": "y"
+    }
+    trace5 = {#LIMITE INFERIOR
+      "x": len(resultados['imr_img']['pts']),#[0.5, 36.5, None, 0.5, 36.5], 
+      "y": resultados['imr_img']['lcl'],#[-0.281712, -0.281712, None, 0.108934, 0.108934], 
+      "error_x": {"copy_ystyle": True}, 
+      "error_y": {
+        "color": "rgb(255,133,27)", 
+        "thickness": 1, 
+        "width": 1
+      }, 
+      "line": {
+        "color": "rgb(255,133,27)", 
+        "width": 2
+      }, 
+      "marker": {
+        "color": "rgb(255,133,27)", 
+        "size": 8, 
+        "symbol": "circle"
+      }, 
+      "mode": "lines", 
+      "name": "Limite inferior", 
+      "showlegend": True, 
+      "type": "scatter", 
+      "uid": "df651f", 
+      "visible": True, 
+      "xaxis": "x", 
+      "yaxis": "y"
+    }
+    data5 = go.Data([trace1,trace2,trace3, trace4,trace5])#, trace2, trace3, trace4,trace5])
+    layout=go.Layout(title=resultado.analisis_cep.resultados['xbar_nombre_grafica'], xaxis={'title':resultado.analisis_cep.resultados['xbar_xasix']}, yaxis={'title':resultado.analisis_cep.resultados['xbar_yasix']})
+    #layout=go.Layout()
+    figure5=go.Figure(data=data5,layout=layout)
+    div5 = opy.plot(figure5, auto_open=False, output_type='div')
+
+
+
+    contexto = {
+        "titulo":titulo,
+        "resultado_form":resultado,
+        "resultado_id":pk,
+        "al":resultados,
+        'graph0':div0, #histogram con curva
+        'graph1':div1,#bosplot
+        'graph5':div5, #X-BAR
+
+    }
+    return render(request, template, contexto)
 
 
 

@@ -19,15 +19,10 @@
  <div class="col-xs-12 col-md-6 col-lg-8">
     <h3>Instrucciones</h3>
     <p>
-    	Para validar tus datos, el archivos XLS debe seguir el siguiente orden y formato:
+    	Para validar tus datos, el archivos XLS debe seguir el siguiente orden y formato de columna:
       <ol>
-      <li>Value</li>
-      <li>Category (if no matching category in our system,
-      'No Category' will be assigned)</li>
-      <li>Date (in m/d/yyyy format, e.g. 5/6/2014 or
-      05/06/2014)</li>
-      <li> Time (in h:m am/pm format, e.g. 8:01 AM or 08:01 PM)</li>
-      <li>Notes</li>
+        <li>Fecha (en formato: dia/mes/año, ejemplo: 29/12/2003)</li>
+        <li>Valor (ya sea entero, decimal o sin valor, ejemplo: 15.5)</li>
       </ol>
       Puedes descargar este archivo de ejemplo como guía:
       <a href="{% static 'samples/csv_import_template.csv' %}">xls_import_template.xls</a>
