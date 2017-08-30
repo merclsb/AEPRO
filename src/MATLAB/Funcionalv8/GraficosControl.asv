@@ -1,0 +1,236 @@
+%**************************************************************************
+%                     GraficosControl(Datos, GrupoRacional,LS,LI, opt_plot )
+%                     Funcion de cálculo del CEP
+%
+%        Sancho et all
+%        Proyecto MaDef2, 
+%        Marzo 2012
+%
+%
+% entradas:      Datos= [Fechas,Datos]
+%                h=1, los datos no son normales, h=0 son normales
+%                Entra una matriz con las fechas y los datos
+%                LS=Límite de control superior
+%                LI=Límite de control inferior
+%                GrupoRacional: Subgrupo Racional por: 
+%                  1=Años (tiene que haber más de un año en los datos)
+%                  2=Meses
+%                  3=Días
+%                  4=Semanas (todavía no está implementado)
+%                  5=Por horas iguales (subgrupo racional = las horas 1)
+%                       (todavía no está implementado)
+%                opt_plot: Opción para plotear graficos (1-plotear, 0-no)
+%
+% parámetros:    'we' aplica todas las reglas weco
+%                'n' aplica todas las reglas Nelson
+%                                 
+% salidas:       Gráfico I-MR [stats_IMR, plotdata_IMR]
+%                             [R_IMR,RULES_IMR]
+%                             R determines which points in the vector x 
+%                             violate the control rules in rules
+%                             Outliers_IMR %vector con los outliers I-MR
+%                             RULES determine 
+%                Gráfico X/S  [stats_XS,plotdata_XS]
+%                             [R_XS,RULES_XS]
+%                             Outliers_XS %vector con los outliers XS
+%                Grupos_Racionales 
+%                Capacidad
+%                Gráfico I-MR de media en cada grupo racional
+%                       [stats_IMR_MGR,plotdata_IMR_MGR]
+%                       [R_IMR_MGR RULES_IMR_MGR]
+%                       Outliers_IMR_MGR %vector con los outliers XS
+%                
+%                      
+% Descripcion:   
+%                
+%
+%**************************************************************************
+function GraficosControl(Datos, h, GrupoRacional,LS,LI,opt_plot,id_analisis)
+
+%##########################################################################
+%###############              Transformación Box-Cox             ##########
+% if h==1
+%     sesgo=0;
+%     if min(Datos(:,2))<0
+%         sesgo=min(Datos(:,2));
+%         Datos(:,2)=Datos(:,2)-sesgo;
+%     end
+%     [DatosTransf, lambda]=boxcox(Datos(:,2));
+%     Datos(:,2)=DatosTransf+sesgo;
+% end
+
+%##########################################################################
+%###############                   I-MR                          ##########
+%Graficos de medidas individuales de rango movil
+%se guarda I_MR_stats y I_MR_plotdata
+%y pasar las reglas weco
+numdatos=size(Datos(:,1),1); %numero de datos
+if opt_plot==1
+    fig1=figure;
+    [stats_IMR,plotdata_IMR]=controlchart(Datos(:,2),'chart', 'mr');
+    title({'I-MR, with UCL=',num2str(plotdata_IMR.ucl(2))})
+else
+    [stats_IMR,plotdata_IMR]=controlchart(Datos(:,2));
+end
+[R_IMR,RULES_IMR] = controlrules('we',Datos(:,2),stats_IMR.mu,stats_IMR.sigma);
+Outliers_IMR = find(R_IMR);
+num_outliers_IMR=size(Outliers_IMR,1);
+
+%##########################################################################
+%###############            Calculo subgrupos racionales         ##########
+%##########################################################################
+%Cálculo de las matrices de datos en función de la opción escogida para el 
+%intervalo temporal que se desea
+Datos_func_aux=[];
+Datos_func_cell=[];
+cont=0;
+switch GrupoRacional
+    case {1,2,3}
+        for i=2:size(Datos,1)
+            aux_fecha=datevec(Datos(i,1));
+            aux_fecha_ant=datevec(Datos(i-1,1));
+            if aux_fecha(GrupoRacional)==aux_fecha_ant(GrupoRacional)
+                Datos_func_aux=[Datos_func_aux;Datos(i,2)];
+            else
+                cont=cont+1;
+                Datos_func_cell{cont}=Datos_func_aux;
+                Datos_func_aux=[];
+                index=i;
+            end
+        end
+        %Metemos el último periodo porque no ve un cambio en el último índice y por
+        %tanto hay que meterlo a mano.
+        Datos_func_cell{cont+1}=Datos(index:end,2);
+    case 4
+        disp('Todavía NO ESTÁ IMPLEMENTADO!!!!!')
+        return
+    case 5
+        disp('Todavía NO ESTÁ IMPLEMENTADO!!!!!')
+        return
+    otherwise
+        disp('--------------------------------------------------------------------')
+        disp('La opción escogida para el intervalo temporal es válida')
+        disp('Selecciones una de estas opciones:')
+        disp('1 = Años')
+        disp('2 = Meses')
+        disp('3 = Días')
+        disp('4 = Semanas')
+        nbasis_opt=[];
+        Estadisticas=[];
+        Funciones=[];
+        return
+end
+%##########################################################################
+
+%##########################################################################
+%Borramos los elementos de cada periodo para que todos tengan los mismos
+%elementos y para eso calculamos el mínimo de elementos en cada caso
+for i=1:size(Datos_func_cell,2)
+    aux=Datos_func_cell{i};
+    nElementos(i)=size(aux,1);
+end
+Datos_func=zeros(min(nElementos),size(Datos_func_cell,2));
+if min(nElementos) ~= max(nElementos)
+    for i=1:size(Datos_func_cell,2)
+        aux=Datos_func_cell{i};
+        %Realizamos el borrado aleatoriamente dentro de cada periodo temporal
+        k=size(aux,1)-min(nElementos);
+        aux2=randperm(size(aux,1));
+        nBorrar=aux2(1:k);
+        %nBorrar=randperm(size(aux,1),k);
+        aux(nBorrar,:)=[];
+        Grupos_Racionales(:,i)=aux;
+    end
+end
+%##########################################################################
+
+%##########################################################################
+%###############    Gráfico X/S por subgrupos racionales         ##########
+%##########################################################################
+%Hacer el gráfico de control por subgrupos y pasar las reglas weco
+
+if opt_plot==1
+    fig2=figure;
+    [stats_XS,plotdata_XS]=controlchart(Grupos_Racionales','chart',{'xbar','s'});
+    %title({num2str(numsubgroup),'Control Chart X/S'})
+    %fprintf('X/S Grafic Data in struct stats_XS & plotdata_XS');
+    nombre=strcat('Figuras\',num2str(id_analisis),'_ControlChart');
+    saveas(fig2,nombre,'pdf')
+    saveas(fig2,nombre,'epsc')
+else
+    [stats_XS,plotdata_XS]=controlchart(Grupos_Racionales');
+    nombre=strcat('Figuras\',num2str(id_analisis),'_ControlChart');
+    saveas(gcf,nombre,'pdf')
+    saveas(gcf,nombre,'epsc')
+end
+[R_XS,RULES_XS] = controlrules('we',Grupos_Racionales',stats_XS.mu,stats_XS.sigma);
+    nombre=strcat('Figuras\',num2str(id_analisis),'_ControlRules');
+    saveas(gcf,nombre,'pdf')
+    saveas(gcf,nombre,'epsc')
+Outliers_XS = find(R_XS);
+num_outliers_XS=size(Outliers_XS,1);
+
+%##########################################################################
+%###############               Capacidad                         ##########
+%##########################################################################
+%Media los los subgrupos racionales para hacer capacidad
+%puestos en una columna
+Media_GR=(mean(Grupos_Racionales))';
+Capacidad = capability(Media_GR,[LI LS]);
+if opt_plot==1
+    fig3=figure;
+    capaplot(Media_GR,[LI LS]); %mirar a vers is aquí tendría que poner 365 medias
+    legend({'Cp=' num2str(Capacidad.Cp), 'Cpk=' num2str(Capacidad.Cpk)})
+    title({'Capability analisys', num2str(size(Media_GR(:,1),1))})
+    grid on
+    nombre=strcat('Figuras\',num2str(id_analisis),'_Capability');
+    saveas(fig3,nombre,'pdf')
+    saveas(fig3,nombre,'epsc')
+end
+
+%##########################################################################
+%#####     Grafico I-MR con las medias de los subgrupos racionales   ######
+%##########################################################################
+if opt_plot==1
+    fig4=figure;
+    [stats_IMR_MGR,plotdata_IMR_MGR]=controlchart(Media_GR,'chart', 'mr');
+    title({'I-MR de la media en cada Grupo Racional, with UCL=',num2str(plotdata_IMR_MGR.ucl(2))})
+    nombre=strcat('Figuras\',num2str(id_analisis),'_IMR');
+    saveas(fig4,nombre,'pdf')
+    saveas(fig4,nombre,'epsc')    
+else
+    [stats_IMR_MGR,plotdata_IMR_MGR]=controlchart(Media_GR);
+    nombre=strcat('Figuras\',num2str(id_analisis),'_IMR');
+    saveas(gcf,nombre,'pdf')
+    saveas(gcf,nombre,'epsc')
+end
+[R_IMR_MGR,RULES_IMR_MGR] = controlrules('we',Media_GR,stats_IMR_MGR.mu,stats_IMR_MGR.sigma);
+    nombre=strcat('Figuras\',num2str(id_analisis),'_ControlRulesIMR');
+    saveas(gcf,nombre,'pdf')
+    saveas(gcf,nombre,'epsc')
+Outliers_IMR_MGR = find(R_IMR_MGR);
+num_outliers_IMR_MGR=size(Outliers_IMR_MGR,1);
+
+%##########################################################################
+%###################             BOX PLOT                  ################
+%##########################################################################
+if opt_plot==1
+    fig5=figure;
+    subplot(2,1,1)
+    boxplot(Grupos_Racionales,'notch','on')
+    title('Box plot')
+    subplot(2,1,2)
+    boxplot(Grupos_Racionales','notch','on')
+    title('Box plot')
+    nombre=strcat('Figuras\',num2str(id_analisis),'_IMR');
+    saveas(fig5,nombre,'pdf')
+    saveas(fig5,nombre,'epsc')
+end
+save GraficosControl.mat stats_IMR plotdata_IMR R_IMR RULES_IMR...
+    Outliers_IMR stats_XS plotdata_XS R_XS RULES_XS Outliers_XS...
+    Grupos_Racionales Capacidad stats_IMR_MGR plotdata_IMR_MGR...
+    R_IMR_MGR RULES_IMR_MGR num_outliers_IMR_MGR
+
+
+
+

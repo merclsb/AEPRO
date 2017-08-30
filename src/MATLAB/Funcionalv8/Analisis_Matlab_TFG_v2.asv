@@ -1,0 +1,177 @@
+%Función que corre el análisis de Matlab
+
+function [Datos,Tabla_datos,Descriptiva,Descriptiva_valores,stats_IMR,stats_XS,R_XS,Capacidad_valores,stats_IMR_MGR,R_IMR_MGR,Datos_func,ind_outliers,FinProceso]=Analisis_Matlab_TFG_v2(f1,f2,f3,Tipo_Analisis,Periodo_Analisis,Nombre_archivo,id_analisis)
+warning ('off','all');
+Inicio=datetime('now');
+FinProceso=0;
+
+%Conversión de las fechas
+DateString = f1;
+formatIn = 'yyyy,mm,dd,HH,MM,SS';
+Fecha_inicial = datenum(DateString,formatIn);
+
+DateString = f2;
+formatIn = 'yyyy,mm,dd,HH,MM,SS';
+Fecha_segunda=datenum(DateString,formatIn);
+
+DateString = f3;
+formatIn = 'yyyy,mm,dd,HH,MM,SS';
+Fecha_Final= datenum(DateString,formatIn);
+
+
+%####################################################################
+%Añadimos al path las tollboxes de funcional y bootstrap en dinámico para 
+%Windows
+addpath ('C:\Program Files\MATLAB\R2015b\toolbox\fdaM')
+addpath ('C:\Program Files\MATLAB\R2015b\toolbox\bootstrap')
+
+
+%##########################################################################
+%##################   CARGARMOS LOS DATOS    ##############################
+%Los datos tienen que estar en este formato
+%Datos=[Fechas Datos]
+%Puede haber huecos en los datos (vacios) porque esto lo arregla
+% disp('El fichero de datos debe de ser una excel con dos columnas Datos=[fecha datos]');
+% disp('Puede haber datos vacios y se rellenaran, pero el primero no puede estar vacio');
+
+%filename = input('Input the filename of the Data as a string:');
+%[NUM,TXT,RAW] = xlsread(Nombre_archivo);
+%load Datos.mat
+
+
+%%%%%%%%%%%%%%%  ARREGLO DATOS  %%%%%%%%%%%%%%%%%%%%%
+[Datos,result_NaN]=Arreglo_Datos_TFG(Nombre_archivo,Fecha_inicial,Fecha_segunda,Fecha_Final);
+
+if result_NaN==0
+    disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+    disp('%%%%%%%      HA HABIDO UN PROBLEMA CON EL RELLANADO!!!')
+    disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+
+else
+    if Tipo_Analisis==1
+        %%%%%%%%%%%%%%%ANALISIS VECTORIAL%%%%%%%%%%%%%%%%%%%%%
+        disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+        disp('%%%%%%%%%%%%%%%ANALISIS VECTORIAL%%%%%%%%%%%%%%%%%%%%%')
+        disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+        %LLamammos al análisis vectorial de los datos de partida
+        [Datos,Descriptiva,stats_IMR,plotdata_IMR,stats_XS,plotdata_XS,R_XS,RULES_XS,Capacidad,stats_IMR_MGR,plotdata_IMR_MGR,R_IMR_MGR,RULES_IMR_MGR]=Analisis_Vectorial_TFG_v2(Datos,id_analisis);
+        Descriptiva_valores(1)=Descriptiva.max;
+        Descriptiva_valores(2)=Descriptiva.min;
+        Descriptiva_valores(3)=Descriptiva.mean;
+        Descriptiva_valores(4)=Descriptiva.mode;
+        Descriptiva_valores(5)=Descriptiva.std;
+        Descriptiva_valores(6)=Descriptiva.var;
+        Descriptiva_valores(7)=Descriptiva.corrcoef;
+        Descriptiva_valores(8)=Descriptiva.cov;
+        Descriptiva_valores(9)=Descriptiva.Q1;
+        Descriptiva_valores(10)=Descriptiva.Q2;
+        Descriptiva_valores(11)=Descriptiva.Q3;
+        Descriptiva_valores(12)=Descriptiva.IQR;
+        Descriptiva_valores(13)=Descriptiva.h;
+        Descriptiva_valores(14)=Descriptiva.p;
+        
+        Capacidad_valores(1)=Capacidad.mu;
+        Capacidad_valores(2)=Capacidad.sigma;
+        Capacidad_valores(3)=Capacidad.P;
+        Capacidad_valores(4)=Capacidad.Pl;
+        Capacidad_valores(5)=Capacidad.Pu;
+        Capacidad_valores(6)=Capacidad.Cp;
+        Capacidad_valores(7)=Capacidad.Cpl;
+        Capacidad_valores(8)=Capacidad.Cpu;
+        Capacidad_valores(9)=Capacidad.Cpk;
+
+        %Almacenamos vacías si se trata de análisi vectorial
+        Datos_func=[];
+        ind_outliers=[];
+    elseif Tipo_Analisis==2
+        %%%%%%%%%%%%%%%ANALISIS FUNCIONAL%%%%%%%%%%%%%%%%%%%%%
+        disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+        disp('%%%%%%%%%%%%%%%ANALISIS FUNCIONAL%%%%%%%%%%%%%%%%%%%%%')
+        disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+        
+        %%%%%%%%%%%%%%%Fechas%%%%%%%%%%%%%%%%%%%%%%%%
+        Datosfecha.fechaini=Fecha_inicial;
+        Datosfecha.fechaini2=Fecha_segunda;
+        Datosfecha.fechafin=Fecha_Final;
+        
+        %%%%%%%%%%%%%%%Parametros%%%%%%%%%%%%%%%%%%%%%
+        param.opt_plot=0;%Opción para visualizar las diferentes gráficas que se van
+        %mostrando a lo largo del proceso (1=activado)
+        param.GrupoRacional=3;
+        param.LS=100;
+        param.LI=-100;
+        param.porc=0.2; %Porcentaje de máxima aceptación para datos rellenados
+        param.maxhueco=2000; %Número máximo de datos rellenados
+        param.minR2=0.95; %Mímnimo R2 admisible para el caso de la generación de funciones
+        param.opt_long_func=Periodo_Analisis;%Longitud de cada función:
+        %1=Años
+        %2=Meses
+        %3=Dias
+        %4=Semanas
+        %5= ESTACIONES NOTA IMP!!!
+        %Las fechas enel caso de estaciones debenempezar por el
+        %primer punto de una estación y acabar por el primer punto
+        %de la siguiente que se desea analizar.
+        param.opt_meses_selec=[]; %Meses seleccionados para el estudio
+        %EJ: Sólo se quieren analizar todos los abriles y mayo entre sí.
+        %opt_meses_selec=[4 5];
+        param.opt_basicas=1; %Opcion para calcular de un modo dinámico el número de básicas
+        %óptimo o bien se pone el número de básicas que se desea
+        %emplear, Ej: opt_basicas=100 (opt_basicas=1 es cálculo
+        %dinámico)
+        param.opt_prof=1; %Opción para determinar qué tipo de profundidad se calcula
+        %1=H-MODAL
+        %2= FMD
+        param.alfa_sign=0.025; %Nivel de significación para los contrastes de hipótesis
+        %de las distribuciones
+        
+        
+        %Llamamos al Análisis funcional para el cálculo de outliers
+        %Primero la creacion de funciones
+        [Funciones,Datos_func,Fechas_func_cell,Estadisticas,nbasis_opt]=...
+            genera_func(Datos,param.opt_long_func,param.opt_meses_selec,param.minR2,param.opt_plot,param.opt_basicas);
+        
+        %Cálculo de las profundidades de las funciones
+        Prof=calcula_prof(Datos_func,Funciones,param.opt_prof);
+        
+        %Cálculo de los outliers a partir de las profundidades
+        [ind_outliers,cutoff]=calcula_outliers(Datos_func,Funciones,Prof,Estadisticas,Fechas_func_cell,param);
+        
+        %save Calculo_Funcional.mat Funciones ind_outliers cutoff Datos_func Fechas_func_cell Estadisticas nbasis_opt
+        
+        %Cálculo de ladistribución que mejor se ajusta a los datos de la
+        %profundidad
+        %[Ajuste,dist_opt,emp]=calcula_distrib(Prof,param.alfa_sign);
+        %Escribimos en un Excel el fichero de Datos final:
+        xlswrite('Datos_Final.xls',Datos);
+        
+        %Se pone a cero en el caso de que sea análisis funcional:
+        Descriptiva_valores=[];
+        Descriptiva=[];
+        stats_IMR=[];
+        plotdata_IMR=[];
+        stats_XS=[];
+        plotdata_XS=[];
+        R_XS=[];
+        RULES_XS=[];
+        Capacidad_valores=[];
+        stats_IMR_MGR=[];
+        plotdata_IMR_MGR=[];
+        R_IMR_MGR=[];
+        [Datos,Descriptiva,stats_IMR,plotdata_IMR,stats_XS,plotdata_XS,R_XS,RULES_XS,Capacidad,stats_IMR_MGR,plotdata_IMR_MGR,R_IMR_MGR,RULES_IMR_MGR]
+    end
+end
+Fechas_string=datestr(Datos(:,1),26);
+Tabla_datos.Fechas=Fechas_string;
+Tabla_datos.Datos=Datos(:,2);
+%Tabla_datos=table(Fechas_string,Datos(:,2));
+Fin=datetime('now');
+Tiempo_Ejecucion=Fin-Inicio;
+%save ResultadosTotales.mat
+disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+disp('################ FIN DEL PROCESO ##########')
+disp('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+disp('El programa ha tardado en su ejecución:')
+disp(Tiempo_Ejecucion)
+FinProceso=1;
+

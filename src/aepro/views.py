@@ -34,6 +34,8 @@ import plotly.offline as opy
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
 
+from datetime import datetime
+
 from subprocess import check_output
 
 def get_pid(name):
@@ -68,10 +70,14 @@ def analisis_model_form_crear(request):
         for key, valor in formulario.cleaned_data.items(): #python3 iteritems -> iter
             print (key,valor)
             instancia = formulario.save(commit=False)
-        print (request.FILES)
-        print (request.FILES['file'].name)
-        print (request.FILES['file'].content_type)
+        # print (request.FILES)
+        # print (request.FILES['file'].name)
+        # print (request.FILES['file'].content_type)
         valores = formulario.cleaned_data.get("tipo_analisis")
+        fec_1=datetime.strftime(formulario.cleaned_data.get("fecha_inicio"),'%d,%m,%Y,%H,%M,%S')
+        fec_2=datetime.strftime(formulario.cleaned_data.get("fecha_paso"),'%d,%m,%Y,%H,%M,%S')
+        fec_3=datetime.strftime(formulario.cleaned_data.get("fecha_fin"),'%d,%m,%Y,%H,%M,%S')
+  
         valor_cep=False
         valor_fda=False
         
@@ -107,7 +113,7 @@ def analisis_model_form_crear(request):
 
                 
                 #TASK-->Matlab
-                subprocess.Popen( ('python aepro/task_matlab.py {}').format(instancia.id_analisis),shell=True)
+                subprocess.Popen( ('python aepro/task_matlab.py {} {} {} {}').format(instancia.id_analisis,fec_1,fec_2,fec_3),shell=True)
 
         except Exception as e: 
             print (e)

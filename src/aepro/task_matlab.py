@@ -20,7 +20,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "website.settings")
 # from django.conf import settings
 django.setup()
 
-from confupro.models import Analisis, ResultadoCEP, ResultadoFDA
+from aepro.models import Analisis, ResultadoCEP, ResultadoFDA
 
 
 #-----Convert matlab.double array to python array
@@ -42,6 +42,9 @@ BASE_DIR2 = os.path.join(BASE_DIR, "MATLAB/Funcionalv8")
 eng.addpath(BASE_DIR2)
 
 analisis = Analisis.objects.get(id_analisis=sys.argv[1])
+Fecha_inicial = sys.argv[2]
+Fecha_segunda = sys.argv[3]
+Fecha_Final = sys.argv[4]
 nombre_archivo = os.path.relpath("media/"+analisis.file.name)
 
 #obtener la informacion de la instancia analisis
