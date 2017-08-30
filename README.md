@@ -30,14 +30,13 @@ http://127.0.0.1:8000/admin
 Tener instalado: pidof
 
 Bootsatrap DateTime Widget 
-  al importarlo (bootstrap3_datetime.widgets import DateTimePicker) genera un error, por lo que hay que dirigirse a  
-  #/$PATH/DateTime/lib/python3.4/site-packages/bootstrap3_datetime/widgets.py
-  y modificar la linea a flatatt
-  #from django.forms.utils import flatatt
+  Al importarlo (bootstrap3_datetime.widgets import DateTimePicker) genera un error, por lo que 
+  hay que dirigirse a  #/$PATH/DateTime/lib/python3.4/site-packages/bootstrap3_datetime/widgets.py
+  y modificar la importacion: #from django.forms.utils import flatatt
 
 ```
 
-# Como se ve la aplicación
+# Como se vé la aplicación
 
 
 ![](https://image.ibb.co/jcyYbk/Screen_Shot_2017_08_30_at_14_27_57.png)
