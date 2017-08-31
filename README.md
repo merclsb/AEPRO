@@ -36,7 +36,7 @@ Bootsatrap DateTime Widget
 
 ```
 
-# Como se vé la aplicación
+# La aplicación
 
 
 ![](https://image.ibb.co/jcyYbk/Screen_Shot_2017_08_30_at_14_27_57.png)
