@@ -43,6 +43,6 @@ Bootsatrap DateTime Widget
 
 ![](https://image.ibb.co/fpUbe5/Screen_Shot_2017_08_30_at_13_21_24.png)
 
-![](https://image.ibb.co/jcHWU5/Screen_Shot_2017_08_30_at_13_55_04.png)
+![](https://image.ibb.co/iWT8wv/Screen_Shot_2017_09_02_at_11_15_42.png)
 
-
+![](https://image.ibb.co/mt88wv/Screen_Shot_2017_09_02_at_10_42_58.png)
