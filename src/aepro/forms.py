@@ -104,7 +104,6 @@ class AnalisisModelForm(forms.ModelForm):
 		pa = self.cleaned_data['periodo']
 		ta = self.cleaned_data['tipo_analisis']
 	
-		print(int((f3-f1).total_seconds()/3600))#horas
 		#La fecha de paso tiene que ser superior a la fecha inicial
 		if not f1 <= f2:
 			raise forms.ValidationError("La fecha de paso es inferior a la inicio!")
@@ -135,39 +134,27 @@ class AnalisisModelForm(forms.ModelForm):
 		tmp_file = os.path.join(settings.MEDIA_ROOT, path)
 			
 		if file:
-			#print (magic.from_file("file", mime=True)
-			print(self.cleaned_data['file'])
-			print (file)#nombre del archivo
 			mime = MimeTypes()
 			mime_type = mime.guess_type(file.name)[0]
-			print ("***mimetipe",mime_type)
 			# xls = application/vnd.ms-excel
 			# xlsx = application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 			if (mime_type == 'application/vnd.ms-excel'  or mime_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'):
-				print("Formato CORRECTO")
 				try:
 					xlrd.open_workbook(tmp_file)#BLOQUE TRY CATCH ???
-					print ("ARCHIVO ABIERTO",True)
 					book = xlrd.open_workbook(tmp_file)
 					#if book.sheet_by_index(0)>0:
-					print ("Numero de hojas",book.nsheets)
 					first_sheet = book.sheet_by_index(0)#seleccionamos la primera hora del fichero excel
 					# La columna 0 contiene fecha No puede tener registros en blanco
 					if first_sheet.ncols==2:
-						print("tiene 2 columnas")
 						#definimos un funcion que permita saber cuantos registros tiene una columna, ya que recorremos todos los regitros de cada columna
-						print (column_len(first_sheet,0))
-						print (column_len(first_sheet,1))
 						#comprobamos el numero de registros de la columna0
 						if column_len(first_sheet,0)>=24:
-							print("tiene > 24 registros")
 							#------------------------------------
 							#comprobar que las fechas introducidas por el usuario y las del fichero coinciden
 							cell_0= first_sheet.cell(0,0)
 							cell_1 = first_sheet.cell(1,0)
 							# buscar la ultima
 							nn = column_len(first_sheet,0)
-							print(nn)
 							cell_n = first_sheet.cell(nn-1,0)
 
 							cell0=xlrd.xldate.xldate_as_datetime(cell_0.value,0)
@@ -184,15 +171,13 @@ class AnalisisModelForm(forms.ModelForm):
 							f_22=datetime.strftime(f2,'%d/%m/%Y %H:%M:%S')
 							f_33=datetime.strftime(f3,'%d/%m/%Y %H:%M:%S')					
 
-							if f_11 == f11 and f_22 == f22 and f_33 == f33:
-								print('si3')
+							#if f_11 == f11 and f_22 == f22 and f_33 == f33:
 							else:#f_11 == f11 and f_22 == f22 and f_33 == f33:
 								raise forms.ValidationError("Las fechas introducidas y las del fichero no coinciden")
 							#------------------------------------
 							# Cell Types: 0=Empty, 1=Text, 2=Number, 3=Date, 4=Boolean, 5=Error, 6=Blank
 							#Comprobar que la comlumna 0 sean valores: 3
 							#Comprobar que la comlumna 1 sean valores: 2 o 6
-							print(first_sheet.cell_type(0,0),first_sheet.cell_type(0,1)) # F=0 C=0/1
 							#comprobar que los campos fecha son fecha
 							for reg in range(0,first_sheet.nrows):
 								if first_sheet.cell_type(reg,0)!=3: # Si no es un campo fecha Error
@@ -253,42 +238,29 @@ class ValidacionFicheroForm(forms.Form):
 	#Validar el fichero
 	def clean_file(self):
 		file = self.files['file']
-		print(file)
 		#temporalmente se guarda el fichero para comprobar su formato y estructura
 		path = default_storage.save(("tmp/{}").format(file), ContentFile(file.read()))
 		tmp_file = os.path.join(settings.MEDIA_ROOT, path)
 		
 		if file:
-			#print (magic.from_file("file", mime=True)
-			print(self.cleaned_data['file'])
-			print (file)#nombre del archivo
 			mime = MimeTypes()
 			mime_type = mime.guess_type(file.name)[0]
-			print ("***mimetipe",mime_type)
 			# xls = application/vnd.ms-excel
 			# xlsx = application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 			if (mime_type == 'application/vnd.ms-excel'  or mime_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'):
-				print("Formato CORRECTO")
 				try:
 					xlrd.open_workbook(tmp_file)#BLOQUE TRY CATCH ???
-					print ("ARCHIVO ABIERTO",True)
 					book = xlrd.open_workbook(tmp_file)
 					#if book.sheet_by_index(0)>0:
-					print ("Numero de hojas",book.nsheets)
 					first_sheet = book.sheet_by_index(0)#seleccionamos la primera hora del fichero excel
 					# La columna 0 contiene fecha No puede tener registros en blanco
 					if first_sheet.ncols==2:
-						print("tiene 2 columnas")
 						#definimos un funcion que permita saber cuantos registros tiene una columna, ya que recorremos todos los regitros de cada columna
-						print (column_len(first_sheet,0))
-						print (column_len(first_sheet,1))
 						#comprobamos el numero de registros de la columna0
 						if column_len(first_sheet,0)>=24:
-							print("tiene > 24 registros")
 							# Cell Types: 0=Empty, 1=Text, 2=Number, 3=Date, 4=Boolean, 5=Error, 6=Blank
 							#Comprobar que la comlumna 0 sean valores: 3
-							#Comprobar que la comlumna 1 sean valores: 2 o 6
-							print(first_sheet.cell_type(0,0),first_sheet.cell_type(0,1)) # F=0 C=0/1
+							#Comprobar que la comlumna 1 sean valores: 2 o 6 # F=0 C=0/1
 							#comprobar que los campos fecha son fecha
 							for reg in range(0,first_sheet.nrows):
 								if first_sheet.cell_type(reg,0)!=3: # Si no es un campo fecha Error
@@ -298,7 +270,6 @@ class ValidacionFicheroForm(forms.Form):
 								if not(first_sheet.cell_type(reg,1)==2 or first_sheet.cell_type(reg,1)==0): # Si no es un campo fecha Error
 									raise forms.ValidationError("Error algun registro no esta en formato numero o blanco")
 							
-							# os.remove(tmp_file)#ELEMINAR EL ARCHIVO TEMPORAL
 							return file#Devolvemos el fichero
 
 						else:#column_len(first_sheet,0)>=24:
@@ -310,7 +281,6 @@ class ValidacionFicheroForm(forms.Form):
 
 
 				except xlrd.XLRDError as e:# if xlrd.open_workbook(tmp_file): -->CATCH
-					#print (e.message)
 					raise forms.ValidationError("No es un fichero valido: XLRDError")
 				finally:
 					os.remove(tmp_file)#ELEMINAR EL ARCHIVO TEMPORAL

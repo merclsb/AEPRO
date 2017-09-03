@@ -77,7 +77,6 @@ for tipo in analisis.tipo_analisis: #['CEP','FDA']
           
           """
           datos=[]
-          #print([row[1] for row in a.result()[0]])
           datos.append([row[1] for row in a.result()[0]])#coger los datos de la segunda columna
  
 
@@ -138,12 +137,10 @@ for tipo in analisis.tipo_analisis: #['CEP','FDA']
             "xbar_yasix":'y1',
              }
 
-          print("Actualizado Estado CEP")
-          print(sys.argv[1])
+
           ResultadoCEP.objects.filter(analisis=sys.argv[1]).update(resultados=valores)
           val= {'pid':os.getpid(),'estado':'finish'}
           ResultadoCEP.objects.filter(analisis=sys.argv[1]).update(pid=val)
-          #print (ResultadoCEP.objects.filter(analisis=sys.argv[1]).update(estado=True))
 
         if tipo == 'FDA':
           val= {'pid':pid,'estado':'run'}
@@ -155,21 +152,13 @@ for tipo in analisis.tipo_analisis: #['CEP','FDA']
           c_out=[] # variable que almacena las curvas que son outliers
           for i in range (len(b.result()[0][0])):
             c.append([row[i] for row in b.result()[0]])
-            print("--------------------------")
-            print(c)
 
           if not isinstance(b.result()[1], collections.Iterable):
-                 print(type(b.result()[1]), b.result()[1])
                  c_out.append(int(b.result()[1]))
           else:
-            print(b.result()[1])
-            print(len(b.result()[1]))
-            print(len(b.result()[1][0]))
             for j in range (len(b.result()[1][0])):
               c_out.append(int(b.result()[1][0][j]))
-              #print(a.result()[1][0][j])
-          print('curvas: ',len(c))
-          print('outliers: ',len(c_out))
+
 
           valores = {"x": c,
                      "y": c_out,
@@ -178,8 +167,6 @@ for tipo in analisis.tipo_analisis: #['CEP','FDA']
                      "yasix":'y1',
                 }
 
-          print("Actualizado Estado FDA")
-          print(sys.argv[1])
           ResultadoFDA.objects.filter(analisis=sys.argv[1]).update(resultados=valores)
           val= {'pid':os.getpid(),'estado':'finish'}
           ResultadoFDA.objects.filter(analisis=sys.argv[1]).update(pid=val)

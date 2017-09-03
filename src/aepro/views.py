@@ -68,11 +68,8 @@ def analisis_model_form_crear(request):
 
     if formulario.is_valid():
         for key, valor in formulario.cleaned_data.items(): #python3 iteritems -> iter
-            print (key,valor)
             instancia = formulario.save(commit=False)
-        # print (request.FILES)
-        # print (request.FILES['file'].name)
-        # print (request.FILES['file'].content_type)
+
         valores = formulario.cleaned_data.get("tipo_analisis")
         fec_1=datetime.strftime(formulario.cleaned_data.get("fecha_inicio"),'%d,%m,%Y,%H,%M,%S')
         fec_2=datetime.strftime(formulario.cleaned_data.get("fecha_paso"),'%d,%m,%Y,%H,%M,%S')
@@ -91,24 +88,19 @@ def analisis_model_form_crear(request):
 
                 #Por ultimo guardarmos la instacia analisis
                 instancia.save()
-                #print (instancia.id_analisis)
             
                 for k in valores: #['CEP','FDA']
                     if k == 'CEP':
                         #Si no hay existe ningun control estadistico de procesos indicamos valor 1 id_cep=1
                         if CEP.objects.all().count()==0:
-                            print ("if",k)
                             obj_cep,valor_cep = CEP.objects.get_or_create(id_cep=1,analisis_id=instancia.id_analisis) #TypeError: unsupported operand type(s) for +: 'NoneType' and 'int
                         else:
                             #si ya existe algun valor, al ultimo le añadimos +1
-                            print ("else",k)
                             obj_cep,valor_cep = CEP.objects.get_or_create(id_cep=CEP.objects.all().last().id_cep+1,analisis_id=instancia.id_analisis)
                     elif k =='FDA':
                         if FDA.objects.all().count()==0:
-                            print ("if",k)
                             obj_fda,valor_fda = FDA.objects.get_or_create(id_fda=1,analisis_id=instancia.id_analisis)
                         else:
-                            print ("else",k)
                             obj_fda,valor_fda = FDA.objects.get_or_create(id_fda=FDA.objects.all().last().id_fda+1,analisis_id=instancia.id_analisis)
 
                 
@@ -137,8 +129,6 @@ class AnalisisListView(LoginRequired,ListView):
     #method flowchart: metodos que se puede usar en ListView
     def get_queryset(self, *args,  **kwargs):
         qs = super(AnalisisListView, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
-        #print (qs)
-        #print (qs.first())
         return (qs)
 
     def get_context_data(self, **kwargs):
@@ -162,8 +152,6 @@ class AnalisisDetailView(LoginRequired,DetailView):
     #method flowchart: metodos que se puede usar en DetailView
     def get_queryset(self, *args,  **kwargs):
         qs = super(AnalisisDetailView, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
-        #print (qs)
-        #print (qs.first())
         return (qs)
 
 
@@ -187,29 +175,9 @@ class AnalisisDeleteViewError(LoginRequired,DeleteView):
     #Filtrar los resultados solo para el usuario que realiza la solicitud
     def get_queryset(self, *args,  **kwargs):
         qs = super(AnalisisDeleteViewError, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
-        print(self.request.POST.get('pk'))
         return (qs)
     def get_success_url(self):
         return reverse('analisis_listcbv')
-
-
-
-# class AnalisisUpdateView(LoginRequired,UpdateView):#--> models:Analisis:get_absolute_url
-#     model = Analisis 
-#     fields = ['titulo_descriptivo','comentario']
-    
-#     template_name = 'analisis_update_view.html'
-
-#     #Filtrar los resultados solo para el usuario que realiza la solicitud
-#     def get_queryset(self, *args,  **kwargs):
-#         qs = super(AnalisisUpdateView, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
-#         print (qs)
-#         print (qs.first())
-#         return (qs)
-        
-    # def get_success_url(self):
-    #     return reverse('analisis_listcbv')
-
 
 class Analisis_FDA_UpdateView(LoginRequired,UpdateView):#--> models:Analisis:get_absolute_url
     model = Analisis
@@ -221,13 +189,10 @@ class Analisis_FDA_UpdateView(LoginRequired,UpdateView):#--> models:Analisis:get
     #Filtrar los resultados solo para el usuario que realiza la solicitud
     def get_queryset(self, *args,  **kwargs):
         qs = super(Analisis_FDA_UpdateView, self).get_queryset(*args, **kwargs).filter(user=self.request.user)
-        #print(self.kwargs.get('pk',0))
         return (qs)
 
     def get(self, request,  *args, **kwargs):
         self.object = Analisis.objects.get(id_analisis=kwargs['pk'])
-        print("-----")
-        print(self.object)
         id_analisis = kwargs['pk']
         analisis = self.model.objects.get(id_analisis=id_analisis)
         f=analisis.analisis_fda.id_fda
@@ -255,21 +220,17 @@ class Analisis_FDA_UpdateView(LoginRequired,UpdateView):#--> models:Analisis:get
         id_analisis = kwargs['pk']
         analisis = self.model.objects.get(id_analisis=id_analisis)
         #res_fda = FDA.objects.get(analisis_id=id_analisis)
-        print(analisis.analisis_fda.id_fda)
-        print("POST")
         #recoger la informacion del formulario
         #Para analisis guardamos el titulo y el comentario
         formulario = self.form_class(request.POST, instance=analisis) # sino se indica la instancia, generaria uno nuevo
         if formulario.is_valid():
           datos_formulario = formulario.cleaned_data
-          print(datos_formulario.get('comentario'))
           #formulario['xasix']=analisis.analisis_fda.resultados['xasix']
 
           nombre_grafica=datos_formulario.get("nombre_grafica")
           xasix=datos_formulario.get("xasix")
           yasix=datos_formulario.get("yasix")
- 
-          print(yasix)
+
           #Para el resultado fda guardamos los ejes y el titulo de la grafica
           
           #analisis.analisis_fda.resultados['xasix']
@@ -282,17 +243,12 @@ class Analisis_FDA_UpdateView(LoginRequired,UpdateView):#--> models:Analisis:get
 
           }
           FDA.objects.filter(analisis=id_analisis).update(resultados=valores)
-          #print (ResultadoFDA.objects.filter(analisis=sys.argv[1]).update(estado=True))
-          print(analisis.analisis_fda.resultados['y'])
-          print(analisis.analisis_fda.resultados['xasix'])
-          print(analisis.analisis_fda.resultados['yasix'])
           formulario.save()
           return HttpResponseRedirect(self.get_success_url())
         else:
           return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self, **kwargs):
-      print(self.kwargs['pk'])
       return reverse('detalle_resultado_fda', args=(self.kwargs['pk'],))
       #return reverse('detalle_resultado_fda', args=(self.object.id_analisis,))
     
@@ -311,7 +267,6 @@ class Analisis_CEP_UpdateView(LoginRequired,UpdateView):#--> models:Analisis:get
         
     def get_success_url(self, **kwargs):
       return reverse('detalle_resultado_cep', args=(self.object.id_analisis,))
-      print(self.object)
 
 
 
@@ -343,7 +298,6 @@ def detalle_resultado_fda(request, pk):
         trace_r.append(go.Scatter(y=x[i], marker={'color': 'grey', 'symbol': 104, 'size': "5"},
                         mode="lines",  name= periodo+' :'+str(i+1)))
     for j in range(len(y)):
-        #print(j)
         trace_out.append (go.Scatter(y=x[y[j]-1], marker={'color': 'red', 'symbol': 104, 'size': "10"},
                             mode="lines",  name='Outlier ->: '+periodo+' :'+str(y[j]) ) )
 
@@ -379,7 +333,6 @@ def detalle_resultado_cep(request, pk):
     a=Analisis.objects.filter(user_id=request.user.id)
     template = "analisis_resultado_detail_cep2.html"
     resultado = get_object_or_404(a, pk=pk)
-    #print(resultado)
     periodo=resultado.periodo
 
     resultados = resultado.analisis_cep.resultados
@@ -390,7 +343,6 @@ def detalle_resultado_cep(request, pk):
     hist_data = [x]
     group_labels = ['valores']
     fig = ff.create_distplot(hist_data, group_labels,curve_type='normal')
-    print(type(fig))
     fig['layout'].update(title='Histograma')
     div0 = opy.plot(fig,auto_open=False,image='jpeg',output_type='div')#output_type='div' auto_open=False, output_type='div'
 
@@ -411,7 +363,6 @@ def detalle_resultado_cep(request, pk):
     data=go.Data([trace1])
     layout=go.Layout(title = "Boxplot")
     figure=go.Figure(data=data,layout=layout)
-    #print(type(figure))
     div1 = opy.plot(figure, auto_open=False, output_type='div')
 
     
@@ -425,35 +376,29 @@ def detalle_resultado_cep(request, pk):
     # #GRAFICA 4 - AUTOCORRELACION
 
     #GRAFICA 5 - X-BAR
-    xkkk=[] # eje x
+    xbar_x=[] # eje x
     for i in range(len(resultados['imr_img']['pts'])):
       xkkk.append(i)
 
     outx = []
     outy = []
 
-    #print(len(resultados['imr_img']['ooc']))
     for i in range(len(resultados['imr_img']['ooc'])):
       if resultados['imr_img']['ooc'][i]==1:
         outx.append(i)
-    #print (outx)
 
     if len(outx)>0:
       j=0
       for i in range(len(resultados['imr_img']['ooc'])):
-        #print (i)
-        #print(outx[j])
         if i==outx[j]:
           outy.append(resultados['imr_img']['pts'][i])
-          #print(resultados['imr_img']['ooc'][i])
           j=j+1
 
-      #print (outy)
 
     trace1 = {#PUNTOS
     
-      "x": xkkk,#[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36], 
-      "y": resultados['imr_img']['pts'],#[-0.2625, -0.2925, -0.1425, -0.0875, -0.01, -0.045, -0.04, -0.0075, -0.0025, -0.1875, -0.21, -0.1725, -0.2025, -0.125, -0.14, -0.065, 0.0325, -0.13, -0.0925, 0.0825, 0.235, -0.0125, 0.065, 0.065, 0.215, 0.0975, 0.085, -0.235, -0.205, -0.27, -0.205, -0.1875, -0.1725, -0.185, -0.195, -0.105], 
+      "x": xbar_x,
+      "y": resultados['imr_img']['pts'],
       "error_x": {"copy_ystyle": True}, 
       "error_y": {
         "color": "rgb(0,116,217)", 
@@ -479,8 +424,8 @@ def detalle_resultado_cep(request, pk):
       "yaxis": "y"
     }
     trace2 = {#OUTLIERS
-      "x": outx,#[2, 21, 23, 24, 25, 26, 27], 
-      "y": outy,#[-0.2925, 0.235, 0.065, 0.065, 0.215, 0.0975, 0.085], 
+      "x": outx,
+      "y": outy,
       "error_x": {"copy_ystyle": True}, 
       "error_y": {
         "color": "rgb(255,65,54)", 
@@ -614,10 +559,6 @@ def contacto(request):
     formulario = FormularioContacto(request.POST or None)
 
     if formulario.is_valid():
-        #print (formulario.cleaned_data.get("email"))
-        # for i in formulario.cleaned_data:
-        #     print (i+":")
-        #     print (formulario.cleaned_data.get(i))
         form_email =  formulario.cleaned_data.get("email")
         form_mensaje = formulario.cleaned_data.get("mensaje")
         form_nombre = formulario.cleaned_data.get("nombre")
@@ -649,13 +590,8 @@ def ValidarFichero(request):
     formulario = ValidacionFicheroForm(request.POST or None, request.FILES or None)
     
     if formulario.is_valid():
-
       estado = 'Formato correcto'
-      print (request.FILES)
-      print (request.FILES['file'].name)
-      print (request.FILES['file'].content_type)
-      #formulario.save()
-      #return HttpResponseRedirect('/')
+
   else:
         formulario = ValidacionFicheroForm()
 
